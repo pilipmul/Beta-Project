@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biometric Auth ke Google Sheets</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; padding: 50px; }
+        .card { border: 1px solid #ccc; padding: 20px; border-radius: 8px; width: 300px; }
+        button { width: 100%; margin-top: 10px; padding: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h3>Daftar / Test Fingerprint</h3>
+    <input type="text" id="username" placeholder="Nama User" style="width: 92%; padding: 8px;">
+    <button onclick="registerFingerprint()" style="background-color: #28a745; color: white;">Daftarkan Sidik Jari</button>
+    <hr>
+    <button onclick="verifyFingerprint()">Test Login</button>
+    <p id="status"></p>
+</div>
+
+<script>
+    const SCRIPT_URL = "URL_APP_SCRIPT_ANDA";
+
+    async function registerFingerprint() {
+        const user = document.getElementById('username').value;
+        if(!user) return alert("Isi nama dulu!");
+
+        // Simulasi WebAuthn (Karena WebAuthn asli butuh HTTPS dan konfigurasi domain)
+        // Di lingkungan produksi, Anda akan menggunakan navigator.credentials.create()
+        const status = document.getElementById('status');
+        status.innerText = "Menghubungkan ke sensor...";
+
+        try {
+            // Kita mengirimkan ID unik ke Google Sheet
+            const fakeKeyId = "KEY-" + Math.random().toString(36).substr(2, 9);
+            
+            const response = await fetch(SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify({ username: user, keyId: fakeKeyId })
+            });
+
+            status.innerText = "Registrasi Berhasil di Google Sheets!";
+        } catch (e) {
+            status.innerText = "Error: Pastikan URL Apps Script benar & HTTPS aktif.";
+        }
+    }
+
+    async function verifyFingerprint() {
+        // Fungsi ini akan memicu pop-up biometrik browser
+        if (window.PublicKeyCredential) {
+            status.innerText = "Memeriksa sensor...";
+            alert("Memanggil sensor biometrik (Hanya bekerja di HTTPS/GitHub Pages)");
+        } else {
+            alert("Browser tidak mendukung WebAuthn");
+        }
+    }
+</script>
+</body>
+</html>
