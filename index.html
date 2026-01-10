@@ -87,23 +87,55 @@
 
     // 3. Fungsi Test (Verifikasi)
     async function testFingerprint() {
-        document.getElementById('status').innerText = "Memverifikasi... Sentuh sensor.";
-        try {
-            const challenge = new Uint8Array(32);
-            window.crypto.getRandomValues(challenge);
+    const status = document.getElementById('status');
+    const userTarget = document.getElementById('username').value;
+    
+    if (!userTarget) return alert("Masukkan nama user yang sudah terdaftar!");
 
-            const assertion = await navigator.credentials.get({
-                publicKey: { challenge: challenge, timeout: 60000 }
-            });
+    status.innerText = "Mengecek database...";
 
-            if (assertion) {
-                document.getElementById('status').innerText = "✅ Verifikasi Berhasil!";
-                alert("Sidik jari dikenali!");
-            }
-        } catch (err) {
-            document.getElementById('status').innerText = "❌ Gagal Verifikasi.";
+    try {
+        // 1. Ambil data dari Google Sheets
+        const response = await fetch(SCRIPT_URL);
+        const allUsers = await response.json();
+        
+        // 2. Cari keyId berdasarkan username
+        const userData = allUsers.find(u => u.username === userTarget);
+        
+        if (!userData) {
+            status.innerText = "User tidak ditemukan di database!";
+            return;
         }
+
+        status.innerText = "Sentuh sensor sidik jari...";
+
+        // 3. Konversi ID kembali ke format Buffer
+        const rawId = Uint8Array.from(atob(userData.keyId.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+
+        const challenge = new Uint8Array(32);
+        window.crypto.getRandomValues(challenge);
+
+        // 4. Panggil sensor biometrik dengan ID yang terdaftar
+        const assertion = await navigator.credentials.get({
+            publicKey: {
+                challenge: challenge,
+                allowCredentials: [{
+                    id: rawId,
+                    type: 'public-key'
+                }],
+                timeout: 60000
+            }
+        });
+
+        if (assertion) {
+            status.innerText = "✅ Login Berhasil! Sidik jari cocok.";
+        }
+    } catch (err) {
+        console.error(err);
+        status.innerText = "❌ Gagal: Sidik jari tidak dikenal atau dibatalkan.";
     }
+}
 </script>
 </body>
 </html>
+
