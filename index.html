@@ -3,61 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biometric Auth ke Google Sheets</title>
+    <title>Fingerprint HP ke Google Sheets</title>
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; padding: 50px; }
-        .card { border: 1px solid #ccc; padding: 20px; border-radius: 8px; width: 300px; }
-        button { width: 100%; margin-top: 10px; padding: 10px; cursor: pointer; }
+        body { font-family: -apple-system, sans-serif; background: #f4f4f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 90%; max-width: 350px; text-align: center; }
+        input { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
+        .btn-reg { background-color: #007bff; color: white; }
+        .btn-test { background-color: #28a745; color: white; }
+        #status { font-size: 0.9em; color: #555; margin-top: 15px; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h3>Daftar / Test Fingerprint</h3>
-    <input type="text" id="username" placeholder="Nama User" style="width: 92%; padding: 8px;">
-    <button onclick="registerFingerprint()" style="background-color: #28a745; color: white;">Daftarkan Sidik Jari</button>
-    <hr>
-    <button onclick="verifyFingerprint()">Test Login</button>
-    <p id="status"></p>
+    <h2>Registrasi Biometrik</h2>
+    <input type="text" id="username" placeholder="Masukkan Nama Anda">
+    <button class="btn-reg" onclick="registerFingerprint()">Daftarkan Sidik Jari</button>
+    <button class="btn-test" onclick="testFingerprint()">Test Login (Verify)</button>
+    <div id="status">Status: Siap</div>
 </div>
 
 <script>
+    // GANTI DENGAN URL WEB APP GOOGLE SCRIPT ANDA
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzEbFldTMPfQrT1ufrG8KXgbw_QsoFTk82aWSAWYS7X37dDP4qL37avyXUmpeKj6TLP/exec";
 
+    // 1. Fungsi Registrasi (Memicu Sensor HP)
     async function registerFingerprint() {
-        const user = document.getElementById('username').value;
-        if(!user) return alert("Isi nama dulu!");
+        const username = document.getElementById('username').value;
+        if (!username) return alert("Isi nama dulu!");
 
-        // Simulasi WebAuthn (Karena WebAuthn asli butuh HTTPS dan konfigurasi domain)
-        // Di lingkungan produksi, Anda akan menggunakan navigator.credentials.create()
         const status = document.getElementById('status');
-        status.innerText = "Menghubungkan ke sensor...";
+        status.innerText = "Sentuh sensor sidik jari di HP Anda...";
 
         try {
-            // Kita mengirimkan ID unik ke Google Sheet
-            const fakeKeyId = "KEY-" + Math.random().toString(36).substr(2, 9);
-            
-            const response = await fetch(SCRIPT_URL, {
-                method: "POST",
-                body: JSON.stringify({ username: user, keyId: fakeKeyId })
-            });
+            // Membuat tantangan (challenge) acak
+            const challenge = new Uint8Array(32);
+            window.crypto.getRandomValues(challenge);
 
-            status.innerText = "Registrasi Berhasil di Google Sheets!";
-        } catch (e) {
-            status.innerText = "Error: Pastikan URL Apps Script benar & HTTPS aktif.";
+            const createCredentialOptions = {
+                publicKey: {
+                    challenge: challenge,
+                    rp: { name: "Aplikasi Sidik Jari" },
+                    user: {
+                        id: Uint8Array.from(username, c => c.charCodeAt(0)),
+                        name: username,
+                        displayName: username
+                    },
+                    pubKeyCredParams: [{ alg: -7, type: "public-key" }], // ES256
+                    authenticatorSelection: { authenticatorAttachment: "platform" }, // Memaksa pakai sensor HP
+                    timeout: 60000
+                }
+            };
+
+            const credential = await navigator.credentials.create(createCredentialOptions);
+            
+            // Jika berhasil, kirim ID unik ke Google Sheets
+            if (credential) {
+                saveToGoogleSheets(username, credential.id);
+            }
+
+        } catch (err) {
+            status.innerText = "Gagal: " + err.message;
+            console.error(err);
         }
     }
 
-    async function verifyFingerprint() {
-        // Fungsi ini akan memicu pop-up biometrik browser
-        if (window.PublicKeyCredential) {
-            status.innerText = "Memeriksa sensor...";
-            alert("Memanggil sensor biometrik (Hanya bekerja di HTTPS/GitHub Pages)");
-        } else {
-            alert("Browser tidak mendukung WebAuthn");
+    // 2. Fungsi Simpan ke Google Sheets
+    async function saveToGoogleSheets(name, keyId) {
+        document.getElementById('status').innerText = "Menyimpan ke database...";
+        try {
+            await fetch(SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: name, keyId: keyId })
+            });
+            document.getElementById('status').innerText = "✅ Berhasil Terdaftar di Sheets!";
+        } catch (e) {
+            document.getElementById('status').innerText = "Gagal simpan data.";
+        }
+    }
+
+    // 3. Fungsi Test (Verifikasi)
+    async function testFingerprint() {
+        document.getElementById('status').innerText = "Memverifikasi... Sentuh sensor.";
+        try {
+            const challenge = new Uint8Array(32);
+            window.crypto.getRandomValues(challenge);
+
+            const assertion = await navigator.credentials.get({
+                publicKey: { challenge: challenge, timeout: 60000 }
+            });
+
+            if (assertion) {
+                document.getElementById('status').innerText = "✅ Verifikasi Berhasil!";
+                alert("Sidik jari dikenali!");
+            }
+        } catch (err) {
+            document.getElementById('status').innerText = "❌ Gagal Verifikasi.";
         }
     }
 </script>
 </body>
-
 </html>
