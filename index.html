@@ -160,64 +160,88 @@
     let nameData = [], itemData = [], itemStock = {}, lastTransactions = [], gaMode = false, activeTextarea = null, longPressTimer;
 
     async function fetchDataAndUpdateUI(isInitialLoad = true) {
-        const icon = document.getElementById("refreshIcon");
-        if(icon) icon.classList.add("spinning");
-        
-        try {
-            const resp = await fetch(`${scriptURL}?action=getDropdownData`);
-            const data = await resp.json();
-            
-            // Update data global
-            nameData = data.names; 
-            itemData = data.items; 
-            itemStock = data.stocks; 
-            lastTransactions = data.transactions || [];
-            
-            // Re-inisialisasi agar input mengenali daftar item terbaru
-            initAutocomplete();
-        } catch (e) { 
-            showToast("Failed"); 
-        } finally { 
-            if(icon) setTimeout(() => icon.classList.remove("spinning"), 600); 
-        }
-    }
-
-    function initAutocomplete() {
-        // Refresh Autocomplete Nama
-        const nameInput = document.getElementById("name");
-        const newNameInput = nameInput.cloneNode(true);
-        nameInput.parentNode.replaceChild(newNameInput, nameInput);
-        setupAutocomplete(newNameInput, document.getElementById("nameList"), nameData);
+    const icon = document.getElementById("refreshIcon");
+    if(icon) icon.classList.add("spinning");
     
-        // Refresh Autocomplete pada semua baris Item yang ada
-        document.querySelectorAll(".item-row").forEach(row => {
-            const itemInput = row.querySelector(".item");
-            const autoCompleteBox = row.querySelector(".autocomplete-list");
-            
-            const newItemInput = itemInput.cloneNode(true);
-            itemInput.parentNode.replaceChild(newItemInput, itemInput);
-            
-            setupAutocomplete(newItemInput, autoCompleteBox, itemData, true);
-        });
+    try {
+        const resp = await fetch(`${scriptURL}?action=getDropdownData`);
+        const data = await resp.json();
+        
+        // Update data global dengan data terbaru dari Google Sheets
+        nameData = data.names || []; 
+        itemData = data.items || []; 
+        itemStock = data.stocks || {}; 
+        lastTransactions = data.transactions || [];
+        
+        // Jalankan ulang inisialisasi autocomplete
+        initAutocomplete();
+        
+    } catch (e) { 
+        console.error(e);
+        showToast("❌ Gagal Sinkronisasi!"); 
+    } finally { 
+        if(icon) setTimeout(() => icon.classList.remove("spinning"), 600); 
     }
+}
 
-    function setupAutocomplete(input, box, data, isItem=false) {
-        input.addEventListener("input", () => {
-            const val = input.value.trim().toLowerCase();
-            if (!val) { box.style.display = "none"; return; }
-            const match = data.filter(d => {
-                if (!d.toLowerCase().includes(val)) return false;
-                if (!gaMode && (itemStock[d] || 0) <= 0) return false; 
-                return true;
-            }).slice(0, 12);
-            if (!match.length) { box.style.display = "none"; return; }
-            box.innerHTML = match.map(m => `<div class="autocomplete-item">${m}</div>`).join('');
-            box.style.display = "block";
-            box.querySelectorAll(".autocomplete-item").forEach(div => {
-                div.onclick = () => { input.value = div.textContent; box.style.display = "none"; };
-            });
+function initAutocomplete() {
+    // 1. Refresh Autocomplete Nama
+    const nameInput = document.getElementById("name");
+    const nameList = document.getElementById("nameList");
+    
+    // Pastikan box list dibersihkan dan disembunyikan dulu
+    nameList.innerHTML = "";
+    nameList.style.display = "none";
+    
+    // Pasang ulang autocomplete dengan data terbaru (nameData)
+    setupAutocomplete(nameInput, nameList, nameData);
+
+    // 2. Refresh Autocomplete pada semua baris Item yang ada
+    document.querySelectorAll(".item-row").forEach(row => {
+        const itemInput = row.querySelector(".item");
+        const itemBox = row.querySelector(".autocomplete-list");
+        
+        itemBox.innerHTML = "";
+        itemBox.style.display = "none";
+        
+        setupAutocomplete(itemInput, itemBox, itemData, true);
+    });
+}
+
+// Pastikan fungsi setupAutocomplete tidak menumpuk listener
+function setupAutocomplete(input, box, data, isItem=false) {
+    if(!input || !box) return;
+
+    // Hapus listener lama dengan cara mengganti elemen (clone) 
+    // hanya jika benar-benar diperlukan, atau gunakan variabel global data.
+    // Cara termudah: hapus event listener lama dengan clone
+    const newInput = input.cloneNode(true);
+    input.parentNode.replaceChild(newInput, input);
+
+    newInput.addEventListener("input", () => {
+        const val = newInput.value.trim().toLowerCase();
+        if (!val) { box.style.display = "none"; return; }
+        
+        const match = data.filter(d => {
+            if (!d.toLowerCase().includes(val)) return false;
+            // Jika mode OUT dan bukan GA mode, sembunyikan jika stok 0
+            if (isItem && !gaMode && (itemStock[d] || 0) <= 0) return false;
+            return true;
+        }).slice(0, 12);
+        
+        if (!match.length) { box.style.display = "none"; return; }
+        
+        box.innerHTML = match.map(m => `<div class="autocomplete-item">${m}</div>`).join('');
+        box.style.display = "block";
+        
+        box.querySelectorAll(".autocomplete-item").forEach(div => {
+            div.onclick = () => { 
+                newInput.value = div.textContent; 
+                box.style.display = "none"; 
+            };
         });
-    }
+    });
+}
 
     async function handleSubmit(mode) {
         const name = document.getElementById("name").value.trim();
@@ -271,6 +295,7 @@
 </script>
 </body>
 </html>
+
 
 
 
