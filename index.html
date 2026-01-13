@@ -161,20 +161,46 @@
 
     async function fetchDataAndUpdateUI(isInitialLoad = true) {
         const icon = document.getElementById("refreshIcon");
-        icon.classList.add("spinning");
+        if(icon) icon.classList.add("spinning");
+        
         try {
             const resp = await fetch(`${scriptURL}?action=getDropdownData`);
             const data = await resp.json();
-            nameData = data.names; itemData = data.items; itemStock = data.stocks; lastTransactions = data.transactions || [];
-            if (isInitialLoad) initAutocomplete();
-        } catch (e) { showToast("❌ Gagal Sinkronisasi!"); }
-        finally { setTimeout(() => icon.classList.remove("spinning"), 600); }
+            
+            // Update data global
+            nameData = data.names; 
+            itemData = data.items; 
+            itemStock = data.stocks; 
+            lastTransactions = data.transactions || [];
+            
+            // RE-INITIALIZE Autocomplete agar item baru masuk ke daftar
+            initAutocomplete();
+            
+            if(!isInitialLoad) showToast("✅ Data Diperbarui!");
+        } catch (e) { 
+            showToast("❌ Gagal Sinkronisasi!"); 
+        } finally { 
+            if(icon) setTimeout(() => icon.classList.remove("spinning"), 600); 
+        }
     }
 
     function initAutocomplete() {
-        setupAutocomplete(document.getElementById("name"), document.getElementById("nameList"), nameData);
-        document.querySelectorAll(".item").forEach(input => {
-            setupAutocomplete(input, input.parentNode.querySelector(".autocomplete-list"), itemData, true);
+        // 1. Refresh Autocomplete Nama
+        const nameInput = document.getElementById("name");
+        const newNameInput = nameInput.cloneNode(true);
+        nameInput.parentNode.replaceChild(newNameInput, nameInput);
+        setupAutocomplete(newNameInput, document.getElementById("nameList"), nameData);
+    
+        // 2. Refresh Autocomplete semua baris Item yang ada
+        document.querySelectorAll(".item-row").forEach(row => {
+            const itemInput = row.querySelector(".item");
+            const autoCompleteBox = row.querySelector(".autocomplete-list");
+            
+            // Clone input untuk hapus listener lama, lalu pasang yang baru dengan data terbaru
+            const newItemInput = itemInput.cloneNode(true);
+            itemInput.parentNode.replaceChild(newItemInput, itemInput);
+            
+            setupAutocomplete(newItemInput, autoCompleteBox, itemData, true);
         });
     }
 
@@ -248,5 +274,6 @@
 </script>
 </body>
 </html>
+
 
 
