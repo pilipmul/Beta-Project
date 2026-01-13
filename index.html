@@ -178,13 +178,20 @@
 
 <div id="stockPopup" class="popup-overlay">
     <div class="popup-box">
-        <div style="position: relative; border: 1px solid #1877f2; border-radius: 8px; margin-bottom: 10px; background: #f9f9f9;">
-            <input type="text" id="stockSearchInput" placeholder="Cek Stok" autocomplete="off">
+        <div style="position: relative; border: 1px solid #1877f2; border-radius: 8px; margin-bottom: 15px; background: #f9f9f9; overflow: hidden;">
+            <input type="text" id="stockSearchInput" placeholder="Cari Nama Item..." autocomplete="off" 
+                   style="width: 100%; border: none; padding: 12px; background: transparent; text-align: center;">
             <div id="stockSearchList" class="autocomplete-list"></div>
         </div>
-        <div id="stockResult" style="padding: 15px; background: #1877f2; color: white; border-radius: 8px; font-size: 1.5rem; font-weight: 700;">
+
+        <div id="stockResult" style="padding: 15px; background: #1877f2; color: white; border-radius: 8px; font-size: 1.8rem; font-weight: 700; min-height: 60px; display: flex; align-items: center; justify-content: center;">
+            -
         </div>
-        <button style="width: fit-content; min-width: 100px; margin: 15px auto 0; background: #595959; display: block; padding: 10px 25px;" onclick="closeStockPopup()">Close</button>
+
+        <button style="width: fit-content; min-width: 120px; margin: 20px auto 0; background: #595959; display: block; padding: 10px 25px; border-radius: 8px; color: white; border: none; font-weight: bold; cursor: pointer;" 
+                onclick="closeStockPopup()">
+            Tutup
+        </button>
     </div>
 </div>
 
@@ -393,5 +400,6 @@
 </script>
 </body>
 </html>
+
 
 
