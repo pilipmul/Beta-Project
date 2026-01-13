@@ -22,10 +22,9 @@
         }
         
         #titleBtn { 
-            width: 100%; max-width: 280px; cursor: pointer; transition: transform 0.1s ease, opacity 0.2s; 
+            width: 100%; max-width: 280px; transition: transform 0.1s ease, opacity 0.2s; 
             user-select: none; -webkit-user-drag: none; -webkit-touch-callout: none;
         }
-        #titleBtn:active { transform: scale(0.95); opacity: 0.8; }
 
         #nameWrapper { position: relative; padding-top: 7px; border-top: 1px solid #1877f2; padding-bottom: 7px; border-bottom: 1px solid #1877f2; }
         
@@ -36,10 +35,8 @@
         }
         input:focus, textarea:focus { outline: none; }
 
-        /* --- PERBAIKAN COLUMN & QTY CENTER --- */
         .row-3col { 
             display: grid; 
-            /* Pembagian kolom simetris: Item dan Notes seimbang (38%), Qty tepat di tengah (24%) */
             grid-template-columns: 40% 20% 40%; 
             gap: 0; 
             align-items: center; 
@@ -50,11 +47,10 @@
         input.qty { 
             border-left: 1px solid #1877f2; 
             border-right: 1px solid #1877f2; 
-            padding: 10px 0; /* Tanpa padding samping agar teks murni di tengah */
+            padding: 10px 0; 
             -moz-appearance: textfield;
         }
 
-        /* Menghilangkan panah spinner input number yang mengganggu alignment */
         input.qty::-webkit-outer-spin-button,
         input.qty::-webkit-inner-spin-button {
             -webkit-appearance: none;
@@ -65,7 +61,6 @@
         
         .btn-group { display: flex; gap: 8px; margin-top: 10px; justify-content: center; position: relative; align-items: center; }
         
-        /* Tombol Tambah Baris disesuaikan agar posisinya center mengikuti kolom Qty */
         .add-row { 
             background-color: transparent; border: none; width: auto; 
             padding: 8px; flex: none; display: flex; justify-content: center; align-items: center;
@@ -88,12 +83,27 @@
         .delete-row:hover { opacity: 1; }
         #itemContainer .item-row:first-child .delete-row { display: none; }
         
+        /* POPUP & UI ELEMENTS */
         .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 6000; }
         .popup-box { background: #fff; border-radius: 16px; padding: 24px; width: 90%; max-width: 320px; text-align: center; border: 2px solid #1877f2; }
         .modal-btn { width: fit-content; min-width: 100px; margin: 0 auto; display: block; padding: 8px 20px; }
         #successMode { background: #facc15; font-weight: 700; padding: 4px 16px; border-radius: 20px; margin-bottom: 15px; display: inline-block; color: #333; }
         .popup-toast { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(33, 33, 33, 0.95); color: #fff; padding: 12px 24px; border-radius: 12px; display: none; z-index: 7000; width: fit-content; max-width: 85%; white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.4); pointer-events: none; font-weight: 600; }
-        .header-actions { position: absolute; top: 5px; left: 8px; display: flex; gap: 8px; z-index: 10; align-items: center; }
+        
+        /* HEADER ACTIONS */
+        .header-actions { position: absolute; top: 12px; left: 12px; right: 12px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+        .left-actions { display: flex; gap: 8px; align-items: center; }
+        
+        /* HAMBURGER MENU */
+        .hamburger-container { position: relative; }
+        #hamburgerBtn { background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; width: auto; }
+        .dropdown-menu { 
+            position: absolute; top: 30px; right: 0; background: white; border: 2px solid #1877f2; 
+            border-radius: 8px; width: 140px; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.2); overflow: hidden; 
+        }
+        .dropdown-item { padding: 12px; font-size: 0.9rem; font-weight: 600; color: #333; cursor: pointer; text-align: left; }
+        .dropdown-item:hover { background: #f0f7ff; color: #1877f2; }
+
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .spinning { animation: spin 1s linear infinite; }
         #historyPopup { position: absolute; top: 25px; left: 30px; background-color: #ffffff !important; border: 2px solid #1877f2; border-radius: 8px; width: 280px; max-height: 350px; overflow-y: auto; padding: 12px; display: none; text-align: left; box-shadow: 0 8px 24px rgba(0,0,0,0.4); z-index: 5000; }
@@ -109,19 +119,32 @@
     <div id="popupToast" class="popup-toast"></div>
 
     <div class="header-actions">
-    <button id="refreshBtn" type="button" onclick="fetchDataAndUpdateUI(false)" style="background:none; border:none; width:auto; padding:0; display:flex; align-items:center;">
-        <svg id="refreshIcon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#1877f2">
-            <path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/>
-        </svg>
-    </button>
-    <button id="historyBtn" type="button" onclick="toggleHistoryPopup(event)" style="display:none; background:none; border:none; color:#1877f2; width:auto; font-weight:bold; font-size:0.8rem; padding:0; cursor:pointer;">
-        ~5
-    </button>
-</div>
+        <div class="left-actions">
+            <button id="refreshBtn" type="button" onclick="fetchDataAndUpdateUI(false)" style="background:none; border:none; width:auto; padding:0; display:flex; align-items:center;">
+                <svg id="refreshIcon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1877f2">
+                    <path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/>
+                </svg>
+            </button>
+            <button id="historyBtn" type="button" onclick="toggleHistoryPopup(event)" style="display:none; background:none; border:none; color:#1877f2; width:auto; font-weight:bold; font-size:0.9rem; padding:0; cursor:pointer;">
+                ~5
+            </button>
+        </div>
+
+        <div class="hamburger-container">
+            <button id="hamburgerBtn" onclick="toggleDropdown(event)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="28px" viewBox="0 -960 960 960" width="28px" fill="#1877f2">
+                    <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/>
+                </svg>
+            </button>
+            <div id="dropdownMenu" class="dropdown-menu">
+                <div class="dropdown-item" onclick="promptGAMode()">⚙️ GA Mode</div>
+            </div>
+        </div>
+    </div>
     
     <div id="historyPopup"><h4 style="margin:0 0 10px 0; text-align:center; color:#1877f2;">~5 Trx</h4><div id="historyList"></div></div>
     
-    <div style="text-align: center; margin: 20px 0;">
+    <div style="text-align: center; margin: 25px 0 15px 0;">
         <img id="titleBtn" src="https://raw.githubusercontent.com/pilipmul/PBC-cek-Piutang/c917d70c8d2a8f1630b8dd1400a2d13c2aa55d65/Title%20PBC%20B.png" alt="PBC SyncFlow" oncontextmenu="return false;" draggable="false">
     </div>
     
@@ -157,95 +180,128 @@
 
 <div id="successPopup" class="popup-overlay"><div class="popup-box"><div id="successMode"></div><div id="successItems" style="text-align:left; margin-bottom:20px; font-size: 0.9rem;"></div><button class="modal-btn" onclick="closeSuccessPopup()">Close</button></div></div>
 <div id="descPopup" class="popup-overlay"><div class="popup-box" style="max-width:350px; width:90%; padding: 25px 20px 20px 20px;"><textarea id="descPopupInput" placeholder="Ketik catatan di sini..."></textarea><button class="modal-btn" onclick="closeDescPopup()">Save & Close</button></div></div>
-<div id="passPopup" class="popup-overlay"><div class="popup-box" style="width:92%;"><input type="password" id="adminPass" placeholder="Admin Password" style="border:1px solid #1877f2; margin-bottom:15px; border-radius:12px; height:50px;"><div class="btn-group" style="gap:15px;"><button class="modal-btn" onclick="checkPassword()">OK</button><button class="modal-btn" onclick="closePassPopup()" style="background:#595959;">Batal</button></div></div></div>
+
+<div id="passPopup" class="popup-overlay">
+    <div class="popup-box" style="width:92%;">
+        <div id="passPopupTitle" style="margin-bottom:10px; font-weight:bold; color:#1877f2;">Security Check</div>
+        <input type="password" id="adminPass" placeholder="Admin Password" style="border:1px solid #1877f2; margin-bottom:15px; border-radius:12px; height:50px;">
+        <div class="btn-group" style="gap:15px;">
+            <button class="modal-btn" id="passConfirmBtn">OK</button>
+            <button class="modal-btn" onclick="closePassPopup()" style="background:#595959;">Batal</button>
+        </div>
+    </div>
+</div>
 
 <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbzEbFldTMPfQrT1ufrG8KXgbw_QsoFTk82aWSAWYS7X37dDP4qL37avyXUmpeKj6TLP/exec';
     let nameData = [], itemData = [], itemStock = {}, lastTransactions = [], gaMode = false, activeTextarea = null, longPressTimer;
+    let passwordTarget = ""; // Untuk membedakan aksi password (GA_MODE atau SUBMIT_IN)
+
+    // Hamburger & Dropdown Logic
+    function toggleDropdown(e) {
+        e.stopPropagation();
+        const menu = document.getElementById("dropdownMenu");
+        menu.style.display = menu.style.display === "block" ? "none" : "block";
+    }
+
+    function promptGAMode() {
+        document.getElementById("dropdownMenu").style.display = "none";
+        if (gaMode) {
+            gaMode = false;
+            updateGAModeUI();
+            showToast("GA Mode OFF");
+        } else {
+            passwordTarget = "ACTIVATE_GA";
+            document.getElementById("passPopupTitle").textContent = "Activate GA Mode";
+            document.getElementById("passPopup").style.display = "flex";
+            document.getElementById("adminPass").focus();
+        }
+    }
+
+    function updateGAModeUI() {
+        document.getElementById("historyBtn").style.display = gaMode ? "block" : "none";
+        // Update menu text
+        const item = document.querySelector(".dropdown-item");
+        item.textContent = gaMode ? "✅ GA Mode (ON)" : "⚙️ GA Mode";
+    }
+
+    // Auth Logic
+    document.getElementById("passConfirmBtn").onclick = checkPassword;
+    function checkPassword() {
+        const passInput = document.getElementById("adminPass");
+        if (passInput.value === "admin123") {
+            document.getElementById("passPopup").style.display = "none";
+            const currentAction = passwordTarget;
+            passInput.value = "";
+            
+            if (currentAction === "ACTIVATE_GA") {
+                gaMode = true;
+                updateGAModeUI();
+                showToast("GA Mode ON");
+            } else if (currentAction === "SUBMIT_IN") {
+                handleSubmit("in");
+            }
+        } else {
+            showToast("❌ Salah!");
+        }
+    }
 
     async function fetchDataAndUpdateUI(isInitialLoad = true) {
-    const icon = document.getElementById("refreshIcon");
-    if(icon) icon.classList.add("spinning");
-    
-    try {
-        const resp = await fetch(`${scriptURL}?action=getDropdownData`);
-        const data = await resp.json();
-        
-        // Update data global dengan data terbaru dari Google Sheets
-        nameData = data.names || []; 
-        itemData = data.items || []; 
-        itemStock = data.stocks || {}; 
-        lastTransactions = data.transactions || [];
-        
-        // Jalankan ulang inisialisasi autocomplete
-        initAutocomplete();
-        
-    } catch (e) { 
-        console.error(e);
-        showToast("❌ Gagal Sinkronisasi!"); 
-    } finally { 
-        if(icon) setTimeout(() => icon.classList.remove("spinning"), 600); 
+        const icon = document.getElementById("refreshIcon");
+        if(icon) icon.classList.add("spinning");
+        try {
+            const resp = await fetch(`${scriptURL}?action=getDropdownData`);
+            const data = await resp.json();
+            nameData = data.names || []; 
+            itemData = data.items || []; 
+            itemStock = data.stocks || {}; 
+            lastTransactions = data.transactions || [];
+            initAutocomplete();
+        } catch (e) { 
+            console.error(e);
+            showToast("❌ Gagal Sinkronisasi!"); 
+        } finally { 
+            if(icon) setTimeout(() => icon.classList.remove("spinning"), 600); 
+        }
     }
-}
 
-function initAutocomplete() {
-    // 1. Refresh Autocomplete Nama
-    const nameInput = document.getElementById("name");
-    const nameList = document.getElementById("nameList");
-    
-    // Pastikan box list dibersihkan dan disembunyikan dulu
-    nameList.innerHTML = "";
-    nameList.style.display = "none";
-    
-    // Pasang ulang autocomplete dengan data terbaru (nameData)
-    setupAutocomplete(nameInput, nameList, nameData);
+    function initAutocomplete() {
+        const nameInput = document.getElementById("name");
+        const nameList = document.getElementById("nameList");
+        nameList.innerHTML = "";
+        nameList.style.display = "none";
+        setupAutocomplete(nameInput, nameList, nameData);
 
-    // 2. Refresh Autocomplete pada semua baris Item yang ada
-    document.querySelectorAll(".item-row").forEach(row => {
-        const itemInput = row.querySelector(".item");
-        const itemBox = row.querySelector(".autocomplete-list");
-        
-        itemBox.innerHTML = "";
-        itemBox.style.display = "none";
-        
-        setupAutocomplete(itemInput, itemBox, itemData, true);
-    });
-}
-
-// Pastikan fungsi setupAutocomplete tidak menumpuk listener
-function setupAutocomplete(input, box, data, isItem=false) {
-    if(!input || !box) return;
-
-    // Hapus listener lama dengan cara mengganti elemen (clone) 
-    // hanya jika benar-benar diperlukan, atau gunakan variabel global data.
-    // Cara termudah: hapus event listener lama dengan clone
-    const newInput = input.cloneNode(true);
-    input.parentNode.replaceChild(newInput, input);
-
-    newInput.addEventListener("input", () => {
-        const val = newInput.value.trim().toLowerCase();
-        if (!val) { box.style.display = "none"; return; }
-        
-        const match = data.filter(d => {
-            if (!d.toLowerCase().includes(val)) return false;
-            // Jika mode OUT dan bukan GA mode, sembunyikan jika stok 0
-            if (isItem && !gaMode && (itemStock[d] || 0) <= 0) return false;
-            return true;
-        }).slice(0, 12);
-        
-        if (!match.length) { box.style.display = "none"; return; }
-        
-        box.innerHTML = match.map(m => `<div class="autocomplete-item">${m}</div>`).join('');
-        box.style.display = "block";
-        
-        box.querySelectorAll(".autocomplete-item").forEach(div => {
-            div.onclick = () => { 
-                newInput.value = div.textContent; 
-                box.style.display = "none"; 
-            };
+        document.querySelectorAll(".item-row").forEach(row => {
+            const itemInput = row.querySelector(".item");
+            const itemBox = row.querySelector(".autocomplete-list");
+            itemBox.innerHTML = "";
+            itemBox.style.display = "none";
+            setupAutocomplete(itemInput, itemBox, itemData, true);
         });
-    });
-}
+    }
+
+    function setupAutocomplete(input, box, data, isItem=false) {
+        if(!input || !box) return;
+        const newInput = input.cloneNode(true);
+        input.parentNode.replaceChild(newInput, input);
+
+        newInput.addEventListener("input", () => {
+            const val = newInput.value.trim().toLowerCase();
+            if (!val) { box.style.display = "none"; return; }
+            const match = data.filter(d => {
+                if (!d.toLowerCase().includes(val)) return false;
+                if (isItem && !gaMode && (itemStock[d] || 0) <= 0) return false;
+                return true;
+            }).slice(0, 12);
+            if (!match.length) { box.style.display = "none"; return; }
+            box.innerHTML = match.map(m => `<div class="autocomplete-item">${m}</div>`).join('');
+            box.style.display = "block";
+            box.querySelectorAll(".autocomplete-item").forEach(div => {
+                div.onclick = () => { newInput.value = div.textContent; box.style.display = "none"; };
+            });
+        });
+    }
 
     async function handleSubmit(mode) {
         const name = document.getElementById("name").value.trim();
@@ -257,6 +313,7 @@ function setupAutocomplete(input, box, data, isItem=false) {
         })).filter(it => it.item && it.qty);
         if (!items.length) return showToast("⚠️ Isi Item!");
         if (mode === "out") { for (let it of items) { if ((itemStock[it.item] || 0) < it.qty) return showToast(`⚠️ Stok ${it.item} Kurang!`); } }
+        
         document.getElementById("loaderOverlay").style.display = "flex";
         const body = new URLSearchParams();
         body.append('name', name); body.append('mode', mode); body.append('items', JSON.stringify(items));
@@ -264,37 +321,64 @@ function setupAutocomplete(input, box, data, isItem=false) {
         try {
             const resp = await fetch(scriptURL, { method: 'POST', body: body });
             const res = await resp.json();
-            if (res.result === "success") { showSuccessPopup(mode, items); document.getElementById("myForm").reset(); fetchDataAndUpdateUI(false); }
-            else { showToast("❌ " + res.error); }
+            if (res.result === "success") { 
+                showSuccessPopup(mode, items); 
+                document.getElementById("myForm").reset(); 
+                fetchDataAndUpdateUI(false); 
+            } else { showToast("❌ " + res.error); }
         } catch (e) { showToast("❌ Koneksi Gagal"); }
         finally { document.getElementById("loaderOverlay").style.display = "none"; }
     }
 
+    // Long Press Notes
     document.addEventListener("mousedown", startPress); document.addEventListener("touchstart", startPress);
     document.addEventListener("mouseup", cancelPress); document.addEventListener("touchend", cancelPress);
-    function startPress(e) { if (e.target.classList.contains("desc")) { activeTextarea = e.target; longPressTimer = setTimeout(() => { const popupInput = document.getElementById("descPopupInput"); popupInput.value = activeTextarea.value; document.getElementById("descPopup").style.display = "flex"; setTimeout(() => { popupInput.focus(); popupInput.setSelectionRange(popupInput.value.length, popupInput.value.length); }, 100); }, 600); } }
+    function startPress(e) { if (e.target.classList.contains("desc")) { activeTextarea = e.target; longPressTimer = setTimeout(() => { const popupInput = document.getElementById("descPopupInput"); popupInput.value = activeTextarea.value; document.getElementById("descPopup").style.display = "flex"; setTimeout(() => { popupInput.focus(); }, 100); }, 600); } }
     function cancelPress() { clearTimeout(longPressTimer); }
     function closeDescPopup() { if (activeTextarea) activeTextarea.value = document.getElementById("descPopupInput").value; document.getElementById("descPopup").style.display = "none"; }
+    
     function showToast(m) { const t = document.getElementById("popupToast"); t.textContent = m; t.style.display = "block"; setTimeout(() => t.style.display="none", 2500); }
     function showSuccessPopup(m, its) { document.getElementById("successMode").textContent = m.toUpperCase(); document.getElementById("successItems").innerHTML = its.map(i => `• ${i.item} = ${i.qty}`).join('<br>'); document.getElementById("successPopup").style.display = "flex"; }
     function closeSuccessPopup() { document.getElementById("successPopup").style.display = "none"; }
-    function toggleHistoryPopup(event) { if (event) event.stopPropagation(); const p = document.getElementById("historyPopup"); const isVisible = p.style.display === "block"; if (!isVisible) { p.style.display = "block"; document.getElementById("historyList").innerHTML = lastTransactions.map(t => `<div style="font-size:0.8rem; border-bottom:1px solid #eee; padding:8px; background:#f3f4f6; margin-bottom:5px; border-radius:5px;"><b>${t[0]}</b> <span style="color:${t[1]==='in'?'#10b981':'#ef4444'}">${t[1].toUpperCase()}</span> ${t[2]}</div>`).join(''); } else { p.style.display = "none"; } }
-    document.addEventListener("click", function(event) { const historyPopup = document.getElementById("historyPopup"); const historyBtn = document.getElementById("historyBtn"); if (historyPopup.style.display === "block" && !historyPopup.contains(event.target) && !historyBtn.contains(event.target)) { historyPopup.style.display = "none"; } });
-    function checkPassword() { if (document.getElementById("adminPass").value === "admin123") { document.getElementById("passPopup").style.display = "none"; document.getElementById("adminPass").value = ""; handleSubmit("in"); } else showToast("❌ Salah!"); }
     function closePassPopup() { document.getElementById("passPopup").style.display = "none"; }
+    
+    function toggleHistoryPopup(event) { 
+        if (event) event.stopPropagation(); 
+        const p = document.getElementById("historyPopup"); 
+        if (p.style.display !== "block") { 
+            p.style.display = "block"; 
+            document.getElementById("historyList").innerHTML = lastTransactions.map(t => `<div style="font-size:0.8rem; border-bottom:1px solid #eee; padding:8px; background:#f3f4f6; margin-bottom:5px; border-radius:5px;"><b>${t[0]}</b> <span style="color:${t[1]==='in'?'#10b981':'#ef4444'}">${t[1].toUpperCase()}</span> ${t[2]}</div>`).join(''); 
+        } else { p.style.display = "none"; } 
+    }
+
+    document.addEventListener("click", function(e) { 
+        // Close Dropdown
+        if (!e.target.closest('.hamburger-container')) document.getElementById("dropdownMenu").style.display = "none";
+        // Close History
+        const hp = document.getElementById("historyPopup");
+        const hb = document.getElementById("historyBtn");
+        if (hp.style.display === "block" && !hp.contains(e.target) && !hb.contains(e.target)) hp.style.display = "none";
+    });
 
     document.getElementById("addRow").onclick = () => {
         const container = document.getElementById("itemContainer");
         if (container.children.length >= 5) return showToast("⚠️ Maksimal 5");
-        const firstRow = container.children[0];
-        const clone = firstRow.cloneNode(true);
+        const clone = container.children[0].cloneNode(true);
         clone.querySelectorAll("input, textarea").forEach(i => { i.value = ""; i.style.height = "42px"; });
         container.appendChild(clone); initAutocomplete();
     };
+
     document.addEventListener("click", e => { if (e.target.classList.contains("delete-row")) e.target.closest(".item-row").remove(); });
-    document.getElementById("titleBtn").onclick = () => { gaMode = !gaMode; showToast(gaMode ? "GA Mode ON" : "GA Mode OFF"); document.getElementById("historyBtn").style.display = gaMode ? "block" : "none"; };
-    document.getElementById("btnIn").onclick = () => document.getElementById("passPopup").style.display = "flex";
+    
+    // Tombol IN dan OUT
+    document.getElementById("btnIn").onclick = () => {
+        passwordTarget = "SUBMIT_IN";
+        document.getElementById("passPopupTitle").textContent = "Admin Approval (IN)";
+        document.getElementById("passPopup").style.display = "flex";
+        document.getElementById("adminPass").focus();
+    };
     document.getElementById("btnOut").onclick = () => handleSubmit("out");
+
     window.onload = () => fetchDataAndUpdateUI(true);
 </script>
 </body>
