@@ -173,30 +173,27 @@
             itemStock = data.stocks; 
             lastTransactions = data.transactions || [];
             
-            // RE-INITIALIZE Autocomplete agar item baru masuk ke daftar
+            // Re-inisialisasi agar input mengenali daftar item terbaru
             initAutocomplete();
-            
-            if(!isInitialLoad) showToast("✅ Data Diperbarui!");
         } catch (e) { 
-            showToast("❌ Gagal Sinkronisasi!"); 
+            showToast("Failed"); 
         } finally { 
             if(icon) setTimeout(() => icon.classList.remove("spinning"), 600); 
         }
     }
 
     function initAutocomplete() {
-        // 1. Refresh Autocomplete Nama
+        // Refresh Autocomplete Nama
         const nameInput = document.getElementById("name");
         const newNameInput = nameInput.cloneNode(true);
         nameInput.parentNode.replaceChild(newNameInput, nameInput);
         setupAutocomplete(newNameInput, document.getElementById("nameList"), nameData);
     
-        // 2. Refresh Autocomplete semua baris Item yang ada
+        // Refresh Autocomplete pada semua baris Item yang ada
         document.querySelectorAll(".item-row").forEach(row => {
             const itemInput = row.querySelector(".item");
             const autoCompleteBox = row.querySelector(".autocomplete-list");
             
-            // Clone input untuk hapus listener lama, lalu pasang yang baru dengan data terbaru
             const newItemInput = itemInput.cloneNode(true);
             itemInput.parentNode.replaceChild(newItemInput, itemInput);
             
@@ -274,6 +271,7 @@
 </script>
 </body>
 </html>
+
 
 
 
