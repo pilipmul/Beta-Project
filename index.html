@@ -21,12 +21,7 @@
             position: relative; text-align: center; margin-bottom: 20px;
         }
         
-        /* FIX: Hilangkan efek tekan pada judul */
-        #titleBtn { 
-            width: 100%; max-width: 280px; 
-            user-select: none; -webkit-user-drag: none; -webkit-touch-callout: none;
-        }
-
+        #titleBtn { width: 100%; max-width: 280px; user-select: none; -webkit-user-drag: none; }
         #nameWrapper { position: relative; padding-top: 7px; border-top: 1px solid #1877f2; padding-bottom: 7px; border-bottom: 1px solid #1877f2; }
         
         input, textarea { 
@@ -52,7 +47,7 @@
         .btn-group { display: flex; gap: 8px; margin-top: 10px; justify-content: center; position: relative; align-items: center; }
         .add-row { background-color: transparent; border: none; width: auto; padding: 8px; flex: none; display: flex; justify-content: center; align-items: center; }
         
-        button { flex: 1; padding: 5px 14px; background-color: #1877f2; color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: opacity 0.2s; }
+        button { flex: 1; padding: 10px 14px; background-color: #1877f2; color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: opacity 0.2s; }
         button:active { opacity: 0.7; }
         button.in, button.out { background-color: #595959; }
         
@@ -60,17 +55,25 @@
         .autocomplete-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; }
         .autocomplete-item:hover { background: #1877f2; color: #fff; }
         
-        .delete-row { position: absolute; top: -10px; right: -2px; background: transparent; border: none; color: #dc2626; font-weight: bold; cursor: pointer; font-size: 1.1rem; padding: 5px; opacity: 0.6; transition: opacity 0.2s; }
-        /* FIX: Sembunyikan tombol hapus di baris pertama */
+        .delete-row { position: absolute; top: -10px; right: -2px; background: transparent; border: none; color: #dc2626; font-weight: bold; cursor: pointer; font-size: 1.1rem; padding: 5px; opacity: 0.6; }
         #itemContainer .item-row:first-child .delete-row { display: none !important; }
         
         .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 6000; }
         .popup-box { background: #fff; border-radius: 16px; padding: 24px; width: 90%; max-width: 320px; text-align: center; border: 2px solid #1877f2; }
         
+        /* Toast Sukses / Notif */
+        .popup-toast { 
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            background: rgba(33, 33, 33, 0.98); color: #fff; padding: 20px; 
+            border-radius: 16px; display: none; z-index: 7000; width: 280px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; border: 1px solid #444;
+        }
+        .toast-items { margin: 15px 0; font-size: 0.9rem; max-height: 150px; overflow-y: auto; line-height: 1.5; }
+        .btn-close-toast { background: #1877f2; color: white; border: none; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
+
         .header-left { position: absolute; top: 12px; left: 12px; z-index: 10; }
         .header-right { position: absolute; top: 12px; right: 12px; z-index: 10; }
-        
-        #hamburgerBtn { background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; }
+        #hamburgerBtn { background: none; border: none; padding: 0; cursor: pointer; }
         .dropdown-menu { 
             position: absolute; top: 32px; right: 0; background: white; 
             border: 2px solid #1877f2; border-radius: 10px; box-shadow: 0 6px 16px rgba(0,0,0,0.15);
@@ -85,11 +88,9 @@
 
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .spinning { animation: spin 1s linear infinite; }
-        
-        #historyPopup { position: absolute; top: 10px; right: 150px; background-color: #ffffff; border: 2px solid #1877f2; border-radius: 8px; width: 280px; max-height: 350px; overflow-y: auto; padding: 12px; display: none; text-align: left; box-shadow: 0 8px 24px rgba(0,0,0,0.4); z-index: 5000; }
         #loaderOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.4); display: none; justify-content: center; align-items: center; z-index: 9999; }
         .loader { border: 6px solid #f3f3f3; border-top: 6px solid #1877f2; border-radius: 50%; width: 50px; height: 50px; animation: spin 0.8s linear infinite; }
-        .popup-toast { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(33, 33, 33, 0.95); color: #fff; padding: 12px 24px; border-radius: 12px; display: none; z-index: 7000; width: fit-content; max-width: 85%; white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.4); pointer-events: none; font-weight: 600; }
+        #historyPopup { position: absolute; top: 10px; right: 150px; background-color: #ffffff; border: 2px solid #1877f2; border-radius: 8px; width: 280px; max-height: 350px; overflow-y: auto; padding: 12px; display: none; text-align: left; box-shadow: 0 8px 24px rgba(0,0,0,0.4); z-index: 5000; }
     </style>
 </head>
 <body>
@@ -173,8 +174,6 @@
 
 <div id="passPopup" class="popup-overlay"><div class="popup-box"><input type="password" id="adminPass" placeholder="Password" style="border:1px solid #1877f2; margin-bottom:15px; border-radius:12px; height:50px;"><div class="btn-group"><button onclick="checkPassword()">Ok</button><button onclick="closePassPopup()" style="background:#595959;">Cancel</button></div></div></div>
 
-<div id="successPopup" class="popup-overlay"><div class="popup-box"><div id="successMode" style="background: #facc15; font-weight: 700; padding: 4px 16px; border-radius: 20px; margin-bottom: 15px; display: inline-block; color: #333;"></div><div id="successItems" style="text-align:left; margin-bottom:20px; font-size: 0.9rem;"></div><button style="width:100%" onclick="closeSuccessPopup()">Tutup</button></div></div>
-
 <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbzEbFldTMPfQrT1ufrG8KXgbw_QsoFTk82aWSAWYS7X37dDP4qL37avyXUmpeKj6TLP/exec';
     let nameData = [], itemData = [], itemStock = {}, lastTransactions = [], gaMode = false;
@@ -188,7 +187,7 @@
     function promptGAMode() {
         document.getElementById("dropdownMenu").style.display = "none";
         if (gaMode) {
-            gaMode = false; updateGAModeUI(); showToast("GA Mode OFF");
+            gaMode = false; updateGAModeUI(); showSimpleToast("GA Mode OFF");
         } else {
             document.getElementById("passPopup").setAttribute("data-target", "ga-toggle");
             document.getElementById("passPopup").style.display = "flex";
@@ -203,23 +202,15 @@
         status.style.color = gaMode ? "#10b981" : "#dc2626";
     }
 
-    // FIX: Cek Stok dengan sistem Autocomplete
     function openStockPopup(e) {
         e.stopPropagation();
         document.getElementById("dropdownMenu").style.display = "none";
         document.getElementById("stockSearchInput").value = "";
         document.getElementById("stockResult").textContent = "-";
         document.getElementById("stockPopup").style.display = "flex";
-        
-        setupAutocomplete(
-            document.getElementById("stockSearchInput"), 
-            document.getElementById("stockSearchList"), 
-            itemData, 
-            false, 
-            (val) => {
-                document.getElementById("stockResult").textContent = itemStock[val] || 0;
-            }
-        );
+        setupAutocomplete(document.getElementById("stockSearchInput"), document.getElementById("stockSearchList"), itemData, false, (val) => {
+            document.getElementById("stockResult").textContent = itemStock[val] || 0;
+        });
     }
 
     function closeStockPopup() { document.getElementById("stockPopup").style.display = "none"; }
@@ -230,9 +221,9 @@
         if (pass === "admin123") {
             document.getElementById("passPopup").style.display = "none";
             document.getElementById("adminPass").value = "";
-            if (target === "ga-toggle") { gaMode = true; updateGAModeUI(); showToast("GA Mode Aktif"); } 
+            if (target === "ga-toggle") { gaMode = true; updateGAModeUI(); showSimpleToast("GA Mode Aktif"); } 
             else { handleSubmit("in"); }
-        } else { showToast("❌ Password Salah!"); }
+        } else { showSimpleToast("❌ Password Salah!"); }
     }
 
     async function fetchDataAndUpdateUI(isInitialLoad = true) {
@@ -246,7 +237,7 @@
             itemStock = data.stocks || {}; 
             lastTransactions = data.transactions || [];
             initAutocomplete();
-        } catch (e) { showToast("❌ Sinkronisasi Gagal"); }
+        } catch (e) { showSimpleToast("❌ Sinkronisasi Gagal"); }
         finally { if(icon) setTimeout(() => icon.classList.remove("spinning"), 600); }
     }
 
@@ -257,7 +248,6 @@
         });
     }
 
-    // Fungsi Autocomplete General
     function setupAutocomplete(input, box, data, isItem=false, onSelectCallback=null) {
         if(!input || !box) return;
         const newInput = input.cloneNode(true);
@@ -283,94 +273,66 @@
         });
     }
 
-async function handleSubmit(mode) {
-        const nameInput = document.getElementById("name");
-        const name = nameInput.value.trim();
-        
-        if (!nameData.includes(name)) return showToast("⚠️ Pilih Nama!");
-        
+    async function handleSubmit(mode) {
+        const name = document.getElementById("name").value.trim();
+        if (!nameData.includes(name)) return showSimpleToast("⚠️ Pilih Nama!");
         const items = [...document.querySelectorAll(".item-row")].map(row => ({
             item: row.querySelector(".item").value.trim(),
             qty: parseInt(row.querySelector(".qty").value),
             desc: row.querySelector(".desc").value.trim()
         })).filter(it => it.item && it.qty);
-
-        if (!items.length) return showToast("⚠️ Isi Item!");
         
-        // Validasi Stok untuk barang keluar
-        if (mode === "out") { 
-            for (let it of items) { 
-                if ((itemStock[it.item] || 0) < it.qty) return showToast(`⚠️ Stok ${it.item} Kurang!`); 
-            } 
-        }
+        if (!items.length) return showSimpleToast("⚠️ Isi Item!");
+        if (mode === "out") { for (let it of items) { if ((itemStock[it.item] || 0) < it.qty) return showSimpleToast(`⚠️ Stok ${it.item} Kurang!`); } }
         
         document.getElementById("loaderOverlay").style.display = "flex";
-        
         const body = new URLSearchParams();
-        body.append('name', name); 
-        body.append('mode', mode); 
-        body.append('items', JSON.stringify(items));
+        body.append('name', name); body.append('mode', mode); body.append('items', JSON.stringify(items));
         body.append('date', new Date().toLocaleDateString('id-ID'));
-
+        
         try {
-            // Menambahkan mode 'no-cors' terkadang membantu jika masalahnya adalah header, 
-            // tapi pastikan Apps Script Anda mengembalikan JSON yang valid.
-            const resp = await fetch(scriptURL, { 
-                method: 'POST', 
-                body: body,
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-            });
-            
+            const resp = await fetch(scriptURL, { method: 'POST', body: body });
             const res = await resp.json();
-
-            if (res.result === "success") {
-                showSuccessPopup(mode, items);
-                // BERSIHKAN FORM
-                document.getElementById("myForm").reset();
-                // Kembalikan jumlah baris ke 1
-                const container = document.getElementById("itemContainer");
-                while (container.children.length > 1) {
-                    container.removeChild(container.lastChild);
-                }
-                // Update data stok terbaru
-                fetchDataAndUpdateUI(false);
-            } else {
-                showToast("❌ " + (res.error || "Gagal menyimpan"));
-            }
+            if (res.result === "success") { 
+                showSuccessToast(mode, items);
+                resetMainForm();
+                fetchDataAndUpdateUI(false); 
+            } else { showSimpleToast("❌ " + res.error); }
         } catch (e) {
-            // Jika data sebenarnya masuk tapi fetch dianggap gagal oleh browser:
             console.error(e);
-            showToast("✅ Data Terkirim (Syncing...)");
-            
-            // Tetap bersihkan form agar user tidak submit berkali-kali
-            document.getElementById("myForm").reset();
-            const container = document.getElementById("itemContainer");
-            while (container.children.length > 1) {
-                container.removeChild(container.lastChild);
-            }
+            // Tetap bersihkan jika kemungkinan data masuk tapi koneksi timeout
+            showSimpleToast("✅ Syncing...");
+            resetMainForm();
             fetchDataAndUpdateUI(false);
-        } finally {
-            document.getElementById("loaderOverlay").style.display = "none";
-        }
+        } finally { document.getElementById("loaderOverlay").style.display = "none"; }
     }
 
-    document.addEventListener("click", () => {
-        document.getElementById("dropdownMenu").style.display = "none";
-        document.getElementById("historyPopup").style.display = "none";
-        document.getElementById("stockSearchList").style.display = "none";
-    });
+    function resetMainForm() {
+        document.getElementById("myForm").reset();
+        const container = document.getElementById("itemContainer");
+        while (container.children.length > 1) { container.removeChild(container.lastChild); }
+    }
 
-    document.getElementById("btnIn").onclick = () => {
-        document.getElementById("passPopup").setAttribute("data-target", "submit-in");
-        document.getElementById("passPopup").style.display = "flex";
-    };
-    
-    document.getElementById("btnOut").onclick = () => handleSubmit("out");
+    function showSimpleToast(m) {
+        const t = document.getElementById("popupToast");
+        t.innerHTML = `<div style="padding:10px">${m}</div>`;
+        t.style.display = "block";
+        setTimeout(() => t.style.display="none", 2500);
+    }
 
-    function showToast(m) { const t = document.getElementById("popupToast"); t.textContent = m; t.style.display = "block"; setTimeout(() => t.style.display="none", 2500); }
-    function closePassPopup() { document.getElementById("passPopup").style.display = "none"; }
-    function closeSuccessPopup() { document.getElementById("successPopup").style.display = "none"; }
-    
+    // Fungsi Notifikasi Berhasil (Baru)
+    function showSuccessToast(mode, items) {
+        const toast = document.getElementById("popupToast");
+        const header = `<div style="font-weight: 800; font-size: 1.2rem; color: #facc15; margin-bottom: 10px;">${mode.toUpperCase()} SUCCESS</div>`;
+        const itemList = items.map(it => `<div>${it.item} <b>${it.qty}</b></div>`).join('');
+        const content = `<div class="toast-items">${itemList}</div>`;
+        const closeBtn = `<button class="btn-close-toast" onclick="document.getElementById('popupToast').style.display='none'">Close</button>`;
+        
+        toast.innerHTML = header + content + closeBtn;
+        toast.style.display = "block";
+        setTimeout(() => { toast.style.display = "none"; }, 6000);
+    }
+
     function toggleHistoryPopup(e) { 
         e.stopPropagation(); 
         document.getElementById("dropdownMenu").style.display = "none";
@@ -381,22 +343,26 @@ async function handleSubmit(mode) {
 
     document.getElementById("addRow").onclick = () => {
         const container = document.getElementById("itemContainer");
-        if (container.children.length >= 5) return showToast("⚠️ Maksimal 5");
-        // Clone baris pertama
+        if (container.children.length >= 5) return showSimpleToast("⚠️ Maksimal 5");
         const clone = container.children[0].cloneNode(true);
-        // Reset nilai input
         clone.querySelectorAll("input, textarea").forEach(i => { i.value = ""; });
-        // Pastikan di baris baru tombol delete muncul (CSS menangani per baris)
         container.appendChild(clone); 
         initAutocomplete();
     };
 
-    document.addEventListener("click", e => { if (e.target.classList.contains("delete-row")) e.target.closest(".item-row").remove(); });
+    document.addEventListener("click", e => { 
+        if (e.target.classList.contains("delete-row")) e.target.closest(".item-row").remove(); 
+        if (!e.target.closest('.dropdown-menu') && !e.target.closest('#hamburgerBtn')) document.getElementById("dropdownMenu").style.display = "none";
+        if (!e.target.closest('#historyPopup') && !e.target.closest('#menuHistory')) document.getElementById("historyPopup").style.display = "none";
+    });
+
+    document.getElementById("btnIn").onclick = () => {
+        document.getElementById("passPopup").setAttribute("data-target", "submit-in");
+        document.getElementById("passPopup").style.display = "flex";
+    };
+    document.getElementById("btnOut").onclick = () => handleSubmit("out");
+    function closePassPopup() { document.getElementById("passPopup").style.display = "none"; }
     window.onload = () => fetchDataAndUpdateUI(true);
 </script>
 </body>
 </html>
-
-
-
-
