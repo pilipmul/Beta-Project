@@ -21,20 +21,20 @@
             position: relative; text-align: center; margin-bottom: 20px;
         }
         
+        /* FIX: Hilangkan efek tekan pada judul */
         #titleBtn { 
-            width: 100%; max-width: 280px; cursor: pointer; transition: transform 0.1s ease, opacity 0.2s; 
+            width: 100%; max-width: 280px; 
             user-select: none; -webkit-user-drag: none; -webkit-touch-callout: none;
         }
-        #titleBtn:active { transform: scale(0.95); opacity: 0.8; }
 
         #nameWrapper { position: relative; padding-top: 7px; border-top: 1px solid #1877f2; padding-bottom: 7px; border-bottom: 1px solid #1877f2; }
         
-        input, textarea, select { 
+        input, textarea { 
             width: 100%; padding: 10px; border: none; font-size: 1rem; 
             background-color: transparent; text-align: center; 
             height: 42px; line-height: 22px; display: block;
         }
-        input:focus, textarea:focus, select:focus { outline: none; }
+        input:focus, textarea:focus { outline: none; }
 
         .row-3col { 
             display: grid; 
@@ -61,11 +61,12 @@
         .autocomplete-item:hover { background: #1877f2; color: #fff; }
         
         .delete-row { position: absolute; top: -10px; right: -2px; background: transparent; border: none; color: #dc2626; font-weight: bold; cursor: pointer; font-size: 1.1rem; padding: 5px; opacity: 0.6; transition: opacity 0.2s; }
+        /* FIX: Sembunyikan tombol hapus di baris pertama */
+        #itemContainer .item-row:first-child .delete-row { display: none !important; }
         
         .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 6000; }
         .popup-box { background: #fff; border-radius: 16px; padding: 24px; width: 90%; max-width: 320px; text-align: center; border: 2px solid #1877f2; }
         
-        /* HEADER NAVIGATION */
         .header-left { position: absolute; top: 12px; left: 12px; z-index: 10; }
         .header-right { position: absolute; top: 12px; right: 12px; z-index: 10; }
         
@@ -80,7 +81,6 @@
             cursor: pointer; color: #333; font-weight: 700; border-bottom: 1px solid #f0f0f0;
             display: flex; align-items: center; justify-content: space-between;
         }
-        .dropdown-item:last-child { border-bottom: none; }
         .dropdown-item:hover { background: #f0f7ff; color: #1877f2; }
 
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -161,10 +161,9 @@
 <div id="stockPopup" class="popup-overlay">
     <div class="popup-box">
         <h3 style="margin-top:0; color:#1877f2; font-size:1.1rem;">Cek Stok Item</h3>
-        <div style="border: 1px solid #1877f2; border-radius: 8px; margin-bottom: 10px; background: #f9f9f9;">
-            <select id="stockSelector" onchange="updateStockDisplay()" style="text-align-last: center;">
-                <option value="">-- Pilih Item --</option>
-            </select>
+        <div style="position: relative; border: 1px solid #1877f2; border-radius: 8px; margin-bottom: 10px; background: #f9f9f9;">
+            <input type="text" id="stockSearchInput" placeholder="Cari Nama Item..." autocomplete="off">
+            <div id="stockSearchList" class="autocomplete-list"></div>
         </div>
         <div id="stockResult" style="padding: 15px; background: #1877f2; color: white; border-radius: 8px; font-size: 1.5rem; font-weight: 700;">
             -
@@ -190,9 +189,7 @@
     function promptGAMode() {
         document.getElementById("dropdownMenu").style.display = "none";
         if (gaMode) {
-            gaMode = false;
-            updateGAModeUI();
-            showToast("GA Mode Dinonaktifkan");
+            gaMode = false; updateGAModeUI(); showToast("GA Mode OFF");
         } else {
             document.getElementById("passPopup").setAttribute("data-target", "ga-toggle");
             document.getElementById("passPopup").style.display = "flex";
@@ -201,42 +198,29 @@
 
     function updateGAModeUI() {
         const status = document.getElementById("gaStatus");
-        const menuHist = document.getElementById("menuHistory");
-        const menuStock = document.getElementById("menuStock");
-        if (gaMode) {
-            status.textContent = "ON"; status.style.color = "#10b981";
-            menuHist.style.display = "flex"; menuStock.style.display = "flex";
-        } else {
-            status.textContent = "OFF"; status.style.color = "#dc2626";
-            menuHist.style.display = "none"; menuStock.style.display = "none";
-        }
+        document.getElementById("menuHistory").style.display = gaMode ? "flex" : "none";
+        document.getElementById("menuStock").style.display = gaMode ? "flex" : "none";
+        status.textContent = gaMode ? "ON" : "OFF";
+        status.style.color = gaMode ? "#10b981" : "#dc2626";
     }
 
-    // Fitur Cek Stok
+    // FIX: Cek Stok dengan sistem Autocomplete
     function openStockPopup(e) {
         e.stopPropagation();
         document.getElementById("dropdownMenu").style.display = "none";
-        const selector = document.getElementById("stockSelector");
-        selector.innerHTML = '<option value="">-- Pilih Item --</option>';
-        itemData.sort().forEach(item => {
-            const opt = document.createElement("option");
-            opt.value = item;
-            opt.textContent = item;
-            selector.appendChild(opt);
-        });
+        document.getElementById("stockSearchInput").value = "";
         document.getElementById("stockResult").textContent = "-";
         document.getElementById("stockPopup").style.display = "flex";
-    }
-
-    function updateStockDisplay() {
-        const item = document.getElementById("stockSelector").value;
-        const resultDiv = document.getElementById("stockResult");
-        if (item) {
-            const qty = itemStock[item] || 0;
-            resultDiv.textContent = qty;
-        } else {
-            resultDiv.textContent = "-";
-        }
+        
+        setupAutocomplete(
+            document.getElementById("stockSearchInput"), 
+            document.getElementById("stockSearchList"), 
+            itemData, 
+            false, 
+            (val) => {
+                document.getElementById("stockResult").textContent = itemStock[val] || 0;
+            }
+        );
     }
 
     function closeStockPopup() { document.getElementById("stockPopup").style.display = "none"; }
@@ -247,9 +231,8 @@
         if (pass === "admin123") {
             document.getElementById("passPopup").style.display = "none";
             document.getElementById("adminPass").value = "";
-            if (target === "ga-toggle") {
-                gaMode = true; updateGAModeUI(); showToast("GA Mode Aktif");
-            } else { handleSubmit("in"); }
+            if (target === "ga-toggle") { gaMode = true; updateGAModeUI(); showToast("GA Mode Aktif"); } 
+            else { handleSubmit("in"); }
         } else { showToast("❌ Password Salah!"); }
     }
 
@@ -275,7 +258,8 @@
         });
     }
 
-    function setupAutocomplete(input, box, data, isItem=false) {
+    // Fungsi Autocomplete General
+    function setupAutocomplete(input, box, data, isItem=false, onSelectCallback=null) {
         if(!input || !box) return;
         const newInput = input.cloneNode(true);
         input.parentNode.replaceChild(newInput, input);
@@ -291,7 +275,11 @@
             box.innerHTML = match.map(m => `<div class="autocomplete-item">${m}</div>`).join('');
             box.style.display = "block";
             box.querySelectorAll(".autocomplete-item").forEach(div => {
-                div.onclick = () => { newInput.value = div.textContent; box.style.display = "none"; };
+                div.onclick = () => { 
+                    newInput.value = div.textContent; 
+                    box.style.display = "none"; 
+                    if(onSelectCallback) onSelectCallback(div.textContent);
+                };
             });
         });
     }
@@ -323,6 +311,7 @@
     document.addEventListener("click", () => {
         document.getElementById("dropdownMenu").style.display = "none";
         document.getElementById("historyPopup").style.display = "none";
+        document.getElementById("stockSearchList").style.display = "none";
     });
 
     document.getElementById("btnIn").onclick = () => {
@@ -347,9 +336,13 @@
     document.getElementById("addRow").onclick = () => {
         const container = document.getElementById("itemContainer");
         if (container.children.length >= 5) return showToast("⚠️ Maksimal 5");
+        // Clone baris pertama
         const clone = container.children[0].cloneNode(true);
+        // Reset nilai input
         clone.querySelectorAll("input, textarea").forEach(i => { i.value = ""; });
-        container.appendChild(clone); initAutocomplete();
+        // Pastikan di baris baru tombol delete muncul (CSS menangani per baris)
+        container.appendChild(clone); 
+        initAutocomplete();
     };
 
     document.addEventListener("click", e => { if (e.target.classList.contains("delete-row")) e.target.closest(".item-row").remove(); });
