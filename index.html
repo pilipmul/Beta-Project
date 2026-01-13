@@ -22,16 +22,14 @@
         }
         
         #titleBtn { 
-    width: 100%; 
-    max-width: 280px; 
-    cursor: pointer; 
-    transition: transform 0.1s ease, opacity 0.2s; 
-    
-    /* Tambahkan ini */
-    user-select: none; 
-    -webkit-user-drag: none; 
-    -webkit-touch-callout: none; /* Mencegah menu konteks di mobile (iOS) */
-}
+            width: 100%; 
+            max-width: 280px; 
+            cursor: pointer; 
+            transition: transform 0.1s ease, opacity 0.2s; 
+            user-select: none; 
+            -webkit-user-drag: none; 
+            -webkit-touch-callout: none;
+        }
         #titleBtn:active { transform: scale(0.95); opacity: 0.8; }
 
         #nameWrapper { position: relative; padding-top: 7px; border-top: 1px solid #1877f2; padding-bottom: 7px; border-bottom: 1px solid #1877f2; }
@@ -42,7 +40,23 @@
             height: 42px; line-height: 22px; display: block;
         }
         input:focus, textarea:focus { outline: none; }
-        input.qty { border-left: 1px solid #1877f2; border-right: 1px solid #1877f2; }
+
+        /* PERBAIKAN CENTER QTY */
+        input.qty { 
+            border-left: 1px solid #1877f2; 
+            border-right: 1px solid #1877f2; 
+            padding: 10px 0; /* Menghapus padding samping agar simetris */
+        }
+
+        /* Menghilangkan panah pada input type number */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
         
         textarea.desc { resize: none; overflow-y: hidden; padding-top: 10px; padding-right: 20px; }
         
@@ -143,10 +157,10 @@
     
     <div style="text-align: center; margin: 20px 0;">
         <img id="titleBtn" 
-     src="https://raw.githubusercontent.com/pilipmul/PBC-cek-Piutang/c917d70c8d2a8f1630b8dd1400a2d13c2aa55d65/Title%20PBC%20B.png" 
-     alt="PBC SyncFlow" 
-     oncontextmenu="return false;" 
-     draggable="false">
+             src="https://raw.githubusercontent.com/pilipmul/PBC-cek-Piutang/c917d70c8d2a8f1630b8dd1400a2d13c2aa55d65/Title%20PBC%20B.png" 
+             alt="PBC SyncFlow" 
+             oncontextmenu="return false;" 
+             draggable="false">
     </div>
     
     <form id="myForm">
@@ -210,14 +224,14 @@
 
     async function fetchDataAndUpdateUI(isInitialLoad = true) {
         const icon = document.getElementById("refreshIcon");
-        icon.classList.add("spinning");
+        if(icon) icon.classList.add("spinning");
         try {
             const resp = await fetch(`${scriptURL}?action=getDropdownData`);
             const data = await resp.json();
             nameData = data.names; itemData = data.items; itemStock = data.stocks; lastTransactions = data.transactions || [];
             if (isInitialLoad) initAutocomplete();
         } catch (e) { showToast("❌ Gagal Sinkronisasi!"); }
-        finally { setTimeout(() => icon.classList.remove("spinning"), 600); }
+        finally { if(icon) setTimeout(() => icon.classList.remove("spinning"), 600); }
     }
 
     function initAutocomplete() {
@@ -228,6 +242,7 @@
     }
 
     function setupAutocomplete(input, box, data, isItem=false) {
+        if(!input || !box) return;
         input.addEventListener("input", () => {
             const val = input.value.trim().toLowerCase();
             if (!val) { box.style.display = "none"; return; }
@@ -318,10 +333,7 @@
     document.addEventListener("click", function(event) {
         const historyPopup = document.getElementById("historyPopup");
         const historyBtn = document.getElementById("historyBtn");
-
-        if (historyPopup.style.display === "block" && 
-            !historyPopup.contains(event.target) && 
-            !historyBtn.contains(event.target)) {
+        if (historyPopup.style.display === "block" && !historyPopup.contains(event.target) && !historyBtn.contains(event.target)) {
             historyPopup.style.display = "none";
         }
     });
@@ -345,4 +357,3 @@
 </script>
 </body>
 </html>
-
