@@ -63,11 +63,24 @@
         
         /* Toast Sukses / Notif */
         .popup-toast { 
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-            background: rgba(33, 33, 33, 0.98); color: #fff; padding: 20px; 
-            border-radius: 16px; display: none; z-index: 7000; width: 280px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; border: 1px solid #444;
-        }
+    position: fixed; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    background: rgba(33, 33, 33, 0.95); 
+    color: #fff; 
+    padding: 10px 20px; /* Padding lebih ramping */
+    border-radius: 25px; /* Lebih membulat untuk bubble kecil */
+    display: none; 
+    z-index: 7000; 
+    width: fit-content; /* Bubble akan mengikuti lebar teks */
+    max-width: 85%;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
+    text-align: center; 
+    border: 1px solid #444;
+    font-size: 0.9rem;
+    white-space: nowrap; /* Mencegah teks turun ke bawah */
+}
         .toast-items { margin: 15px 0; font-size: 0.9rem; max-height: 150px; overflow-y: auto; line-height: 1.5; }
         .btn-close-toast { background: #1877f2; color: white; border: none; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
 
@@ -314,24 +327,35 @@
     }
 
     function showSimpleToast(m) {
-        const t = document.getElementById("popupToast");
-        t.innerHTML = `<div style="padding:10px">${m}</div>`;
-        t.style.display = "block";
-        setTimeout(() => t.style.display="none", 2500);
-    }
+    const t = document.getElementById("popupToast");
+    // Reset style ke mode kecil
+    t.style.padding = "10px 20px";
+    t.style.borderRadius = "25px";
+    t.style.width = "fit-content";
+    
+    t.innerHTML = m;
+    t.style.display = "block";
+    setTimeout(() => { t.style.display = "none"; }, 2000);
+}
 
     // Fungsi Notifikasi Berhasil (Baru)
     function showSuccessToast(mode, items) {
-        const toast = document.getElementById("popupToast");
-        const header = `<div style="font-weight: 800; font-size: 1.2rem; color: #facc15; margin-bottom: 10px;">${mode.toUpperCase()} SUCCESS</div>`;
-        const itemList = items.map(it => `<div>${it.item} <b>${it.qty}</b></div>`).join('');
-        const content = `<div class="toast-items">${itemList}</div>`;
-        const closeBtn = `<button class="btn-close-toast" onclick="document.getElementById('popupToast').style.display='none'">Close</button>`;
-        
-        toast.innerHTML = header + content + closeBtn;
-        toast.style.display = "block";
-        setTimeout(() => { toast.style.display = "none"; }, 6000);
-    }
+    const toast = document.getElementById("popupToast");
+    // Sesuaikan style untuk konten yang lebih banyak
+    toast.style.padding = "20px";
+    toast.style.borderRadius = "16px";
+    toast.style.width = "280px";
+    
+    const header = `<div style="font-weight: 800; font-size: 1.1rem; color: #facc15; margin-bottom: 8px;">${mode.toUpperCase()} SUCCESS</div>`;
+    const itemList = items.map(it => `<div style="margin-bottom:3px;">${it.item} <b>${it.qty}</b></div>`).join('');
+    const content = `<div class="toast-items" style="margin: 10px 0; font-size: 0.85rem;">${itemList}</div>`;
+    const closeBtn = `<button class="btn-close-toast" style="margin-top:10px;" onclick="document.getElementById('popupToast').style.display='none'">Close</button>`;
+    
+    toast.innerHTML = header + content + closeBtn;
+    toast.style.display = "block";
+    // Untuk sukses transaksi, beri waktu lebih lama atau tunggu diklik close
+    setTimeout(() => { toast.style.display = "none"; }, 6000);
+}
 
     function toggleHistoryPopup(e) { 
         e.stopPropagation(); 
@@ -366,3 +390,4 @@
 </script>
 </body>
 </html>
+
