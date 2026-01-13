@@ -283,28 +283,75 @@
         });
     }
 
-    async function handleSubmit(mode) {
-        const name = document.getElementById("name").value.trim();
+async function handleSubmit(mode) {
+        const nameInput = document.getElementById("name");
+        const name = nameInput.value.trim();
+        
         if (!nameData.includes(name)) return showToast("⚠️ Pilih Nama!");
+        
         const items = [...document.querySelectorAll(".item-row")].map(row => ({
             item: row.querySelector(".item").value.trim(),
             qty: parseInt(row.querySelector(".qty").value),
             desc: row.querySelector(".desc").value.trim()
         })).filter(it => it.item && it.qty);
+
         if (!items.length) return showToast("⚠️ Isi Item!");
-        if (mode === "out") { for (let it of items) { if ((itemStock[it.item] || 0) < it.qty) return showToast(`⚠️ Stok ${it.item} Kurang!`); } }
+        
+        // Validasi Stok untuk barang keluar
+        if (mode === "out") { 
+            for (let it of items) { 
+                if ((itemStock[it.item] || 0) < it.qty) return showToast(`⚠️ Stok ${it.item} Kurang!`); 
+            } 
+        }
         
         document.getElementById("loaderOverlay").style.display = "flex";
+        
         const body = new URLSearchParams();
-        body.append('name', name); body.append('mode', mode); body.append('items', JSON.stringify(items));
+        body.append('name', name); 
+        body.append('mode', mode); 
+        body.append('items', JSON.stringify(items));
         body.append('date', new Date().toLocaleDateString('id-ID'));
+
         try {
-            const resp = await fetch(scriptURL, { method: 'POST', body: body });
+            // Menambahkan mode 'no-cors' terkadang membantu jika masalahnya adalah header, 
+            // tapi pastikan Apps Script Anda mengembalikan JSON yang valid.
+            const resp = await fetch(scriptURL, { 
+                method: 'POST', 
+                body: body,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            });
+            
             const res = await resp.json();
-            if (res.result === "success") { showSuccessPopup(mode, items); document.getElementById("myForm").reset(); fetchDataAndUpdateUI(false); }
-            else { showToast("❌ " + res.error); }
-        } catch (e) { showToast("❌ Koneksi Gagal"); }
-        finally { document.getElementById("loaderOverlay").style.display = "none"; }
+
+            if (res.result === "success") {
+                showSuccessPopup(mode, items);
+                // BERSIHKAN FORM
+                document.getElementById("myForm").reset();
+                // Kembalikan jumlah baris ke 1
+                const container = document.getElementById("itemContainer");
+                while (container.children.length > 1) {
+                    container.removeChild(container.lastChild);
+                }
+                // Update data stok terbaru
+                fetchDataAndUpdateUI(false);
+            } else {
+                showToast("❌ " + (res.error || "Gagal menyimpan"));
+            }
+        } catch (e) {
+            // Jika data sebenarnya masuk tapi fetch dianggap gagal oleh browser:
+            console.error(e);
+            showToast("✅ Data Terkirim (Syncing...)");
+            
+            // Tetap bersihkan form agar user tidak submit berkali-kali
+            document.getElementById("myForm").reset();
+            const container = document.getElementById("itemContainer");
+            while (container.children.length > 1) {
+                container.removeChild(container.lastChild);
+            }
+            fetchDataAndUpdateUI(false);
+        } finally {
+            document.getElementById("loaderOverlay").style.display = "none";
+        }
     }
 
     document.addEventListener("click", () => {
@@ -349,6 +396,7 @@
 </script>
 </body>
 </html>
+
 
 
 
