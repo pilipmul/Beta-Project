@@ -184,7 +184,7 @@
             if (!val) { box.style.display = "none"; return; }
             const match = data.filter(d => {
                 if (!d.toLowerCase().includes(val)) return false;
-                if (isItem && !gaMode && (itemStock[d] || 0) <= 0) return false;
+                if (!gaMode && (itemStock[d] || 0) <= 0) return false; 
                 return true;
             }).slice(0, 12);
             if (!match.length) { box.style.display = "none"; return; }
@@ -248,4 +248,5 @@
 </script>
 </body>
 </html>
+
 
