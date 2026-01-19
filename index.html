@@ -44,9 +44,31 @@
             padding-bottom: 10px; padding-top: 5px; position: relative; 
         }
 
-        input.qty { 
+        /* MODIFIKASI WRAPPER QTY UNTUK OVERLAY STOK */
+        .qty-wrapper {
+            position: relative;
+            display: grid;
+            place-items: center;
             border-left: 1px solid #1877f2; 
-            border-right: 1px solid #1877f2; 
+            border-right: 1px solid #1877f2;
+            height: 42px;
+        }
+
+        .stock-overlay {
+            grid-area: 1/1;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: rgba(220, 38, 38, 0.3); /* Merah Transparansi 30% */
+            pointer-events: none;
+            display: none; /* Muncul hanya saat GA Mode & Item terpilih */
+            z-index: 1;
+        }
+
+        input.qty { 
+            grid-area: 1/1;
+            position: relative;
+            z-index: 2;
+            background: transparent !important;
             padding: 10px 0;
             -moz-appearance: textfield;
         }
@@ -156,7 +178,10 @@
                     <input type="text" class="item" placeholder="Item" autocomplete="off" required>
                     <div class="autocomplete-list"></div>
                 </div>
-                <input type="number" class="qty" min="1" placeholder="Qty" required>
+                <div class="qty-wrapper">
+                    <span class="stock-overlay"></span>
+                    <input type="number" class="qty" min="1" placeholder="Qty" required>
+                </div>
                 <div style="position: relative;">
                     <textarea class="desc" placeholder="Notes"></textarea>
                     <button type="button" class="delete-row">×</button>
@@ -208,6 +233,8 @@
         } else {
             showToast("GA Mode: OFF");
             btnHist.style.display = "none";
+            // Sembunyikan semua overlay saat GA OFF
+            document.querySelectorAll(".stock-overlay").forEach(s => s.style.display = "none");
         }
         initAutocomplete();
     }
@@ -247,15 +274,16 @@ function initAutocomplete() {
     document.querySelectorAll(".item-row").forEach(row => {
         const itemInput = row.querySelector(".item");
         const itemBox = row.querySelector(".autocomplete-list");
+        const overlay = row.querySelector(".stock-overlay");
         
         itemBox.innerHTML = "";
         itemBox.style.display = "none";
         
-        setupAutocomplete(itemInput, itemBox, itemData, true);
+        setupAutocomplete(itemInput, itemBox, itemData, true, overlay);
     });
 }
 
-function setupAutocomplete(input, box, data, isItem=false) {
+function setupAutocomplete(input, box, data, isItem=false, overlay=null) {
     if(!input || !box) return;
 
     const newInput = input.cloneNode(true);
@@ -263,6 +291,18 @@ function setupAutocomplete(input, box, data, isItem=false) {
 
     newInput.addEventListener("input", () => {
         const val = newInput.value.trim().toLowerCase();
+        
+        // Update overlay stok jika item ditemukan (khusus Item)
+        if (isItem && overlay) {
+            const currentVal = newInput.value.trim();
+            if (gaMode && itemStock[currentVal] !== undefined) {
+                overlay.textContent = itemStock[currentVal];
+                overlay.style.display = "block";
+            } else {
+                overlay.style.display = "none";
+            }
+        }
+
         if (!val) { box.style.display = "none"; return; }
         
         const match = data.filter(d => {
@@ -280,6 +320,11 @@ function setupAutocomplete(input, box, data, isItem=false) {
             div.onclick = () => { 
                 newInput.value = div.textContent; 
                 box.style.display = "none"; 
+                // Trigger update overlay setelah pilih dari list
+                if (isItem && overlay && gaMode) {
+                    overlay.textContent = itemStock[div.textContent] || 0;
+                    overlay.style.display = "block";
+                }
             };
         });
     });
@@ -355,6 +400,9 @@ function setupAutocomplete(input, box, data, isItem=false) {
         const firstRow = container.children[0];
         const clone = firstRow.cloneNode(true);
         clone.querySelectorAll("input, textarea").forEach(i => { i.value = ""; i.style.height = "42px"; });
+        // Reset overlay untuk baris baru
+        const o = clone.querySelector(".stock-overlay");
+        if(o) o.style.display = "none";
         container.appendChild(clone); initAutocomplete();
     };
     document.addEventListener("click", e => { if (e.target.classList.contains("delete-row")) e.target.closest(".item-row").remove(); });
