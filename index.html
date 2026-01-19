@@ -57,7 +57,7 @@
             grid-area: 1/1;
             font-size: 1.1rem;
             font-weight: 700;
-            color: rgba(220, 38, 38, 0.7);
+            color: rgba(220, 38, 38, 0.6); /* Dipertebal menjadi 60% */
             pointer-events: none;
             display: none;
             z-index: 1;
@@ -72,7 +72,6 @@
             -moz-appearance: textfield;
         }
         
-        /* Menghilangkan placeholder saat stok muncul */
         input.qty.hide-placeholder::placeholder { color: transparent; }
 
         input.qty::-webkit-outer-spin-button,
@@ -113,10 +112,17 @@
         #successMode { background: #facc15; font-weight: 700; padding: 4px 16px; border-radius: 20px; margin-bottom: 15px; display: inline-block; color: #333; }
         .popup-toast { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(33, 33, 33, 0.95); color: #fff; padding: 12px 24px; border-radius: 12px; display: none; z-index: 7000; width: fit-content; max-width: 85%; white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.4); pointer-events: none; font-weight: 600; }
         
-        .header-actions { position: absolute; top: 0; left: 0; right: 0; height: 40px; pointer-events: none; z-index: 10; }
+        .header-actions { position: absolute; top: 0; left: 0; right: 0; height: 40px; pointer-events: none; z-index: 10; display: flex; align-items: center; }
         #refreshBtn { position: absolute; top: 10px; left: 10px; pointer-events: auto; }
         #hamburgerBtn { position: absolute; top: 10px; right: 10px; pointer-events: auto; }
         
+        /* Gaya untuk teks Indikator GA */
+        #gaIndicator { 
+            position: absolute; top: 10px; left: 35px; 
+            color: #1877f2; font-weight: 800; font-size: 14px; 
+            display: none; pointer-events: none; line-height: 20px;
+        }
+
         .dropdown-menu { 
             position: absolute; top: 35px; right: 10px; 
             background: white; border: 1px solid #1877f2; 
@@ -151,7 +157,7 @@
                 <path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/>
             </svg>
         </button>
-        <button id="hamburgerBtn" type="button" onclick="toggleDropdown(event)" style="background:none; border:none; width:auto; padding:0; display:flex; align-items:center;">
+        <div id="gaIndicator">GA</div> <button id="hamburgerBtn" type="button" onclick="toggleDropdown(event)" style="background:none; border:none; width:auto; padding:0; display:flex; align-items:center;">
             <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#1877f2">
                 <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/>
             </svg>
@@ -229,12 +235,15 @@
     function updateGAUI(status) {
         gaMode = status;
         const btnHist = document.getElementById("btnHistoryGA");
+        const gaInd = document.getElementById("gaIndicator");
         if (gaMode) {
             showToast("GA Mode: ON (Bypass Stok)");
             btnHist.style.display = "block";
+            gaInd.style.display = "block"; // Tampilkan tulisan GA
         } else {
             showToast("GA Mode: OFF");
             btnHist.style.display = "none";
+            gaInd.style.display = "none"; // Sembunyikan tulisan GA
             document.querySelectorAll(".stock-overlay").forEach(s => s.style.display = "none");
             document.querySelectorAll(".qty").forEach(q => q.classList.remove("hide-placeholder"));
         }
@@ -284,7 +293,6 @@ function initAutocomplete() {
         
         setupAutocomplete(itemInput, itemBox, itemData, true, overlay, qtyInput);
         
-        // Listener baru untuk qty input
         qtyInput.oninput = () => {
             if (gaMode && overlay) {
                 overlay.style.display = (qtyInput.value.trim() === "" && overlay.textContent !== "") ? "block" : "none";
@@ -425,4 +433,3 @@ function setupAutocomplete(input, box, data, isItem=false, overlay=null, qtyInpu
 </script>
 </body>
 </html>
-
