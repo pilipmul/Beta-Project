@@ -89,7 +89,6 @@
         #successMode { background: #facc15; font-weight: 700; padding: 4px 16px; border-radius: 20px; margin-bottom: 15px; display: inline-block; color: #333; }
         .popup-toast { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(33, 33, 33, 0.95); color: #fff; padding: 12px 24px; border-radius: 12px; display: none; z-index: 7000; width: fit-content; max-width: 85%; white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.4); pointer-events: none; font-weight: 600; }
         
-        /* HEADER ACTIONS & DROPDOWN */
         .header-actions { position: absolute; top: 0; left: 0; right: 0; height: 40px; pointer-events: none; z-index: 10; }
         #refreshBtn { position: absolute; top: 10px; left: 10px; pointer-events: auto; }
         #hamburgerBtn { position: absolute; top: 10px; right: 10px; pointer-events: auto; }
@@ -139,7 +138,7 @@
     <div id="historyPopup"><h4 style="margin:0 0 10px 0; text-align:center; color:#1877f2;">~5 Trx</h4><div id="historyList"></div></div>
     
     <div style="text-align: center; margin: 20px 0;">
-        <img id="titleBtn" src="https://raw.githubusercontent.com/pilipmul/PBC-cek-Piutang/c917d70c8d2a8f1630b8dd1400a2d13c2aa55d65/Title%20PBC%20B.png" alt="PBC SyncFlow" oncontextmenu="return false;" draggable="false">
+        <img id="titleBtn" src="https://raw.githubusercontent.com/pilipmul/PBC-cek-Piutang/c917d70c8d2a8f1630b8dd1400a2d13c2aa55d65/Title%20PBC%20B.png" alt="PBC SyncFlow" oncontextmenu="false" draggable="false">
     </div>
     
     <form id="myForm">
@@ -178,7 +177,7 @@
 
 <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbzNzaOwIeHkxlp9wdeHDlCLTfqbXlS-A6yzC8c-m4KDIzT-JlBLK_5QqBc6lHXmK41GSQ/exec';
-    let nameData = [], itemData = [], itemStock = {}, lastTransactions = [], gaMode = false, activeTextarea = null, longPressTimer;
+    let nameData = [], itemData = [], itemStock = {}, lastTransactions = [], gaMode = false, activeTextarea = null, longPressTimer, passAction = "";
 
     function toggleDropdown(e) {
         e.stopPropagation();
@@ -187,10 +186,16 @@
     }
 
     function toggleGAMode() {
-        gaMode = !gaMode;
-        showToast(gaMode ? "GA Mode: ON (Bypass Stok)" : "GA Mode: OFF");
         document.getElementById("myDropdown").style.display = "none";
-        initAutocomplete();
+        if (!gaMode) {
+            passAction = "ga";
+            document.getElementById("passPopup").style.display = "flex";
+            document.getElementById("adminPass").focus();
+        } else {
+            gaMode = false;
+            showToast("GA Mode: OFF");
+            initAutocomplete();
+        }
     }
 
     async function fetchDataAndUpdateUI(isInitialLoad = true) {
@@ -306,8 +311,19 @@ function setupAutocomplete(input, box, data, isItem=false) {
         if (dropdown.style.display === "flex" && !event.target.closest("#hamburgerBtn")) { dropdown.style.display = "none"; }
     });
 
-    function checkPassword() { if (document.getElementById("adminPass").value === "admin123") { document.getElementById("passPopup").style.display = "none"; document.getElementById("adminPass").value = ""; handleSubmit("in"); } else showToast("❌ Salah!"); }
-    function closePassPopup() { document.getElementById("passPopup").style.display = "none"; }
+    function checkPassword() { 
+        if (document.getElementById("adminPass").value === "admin123") { 
+            document.getElementById("passPopup").style.display = "none"; 
+            document.getElementById("adminPass").value = ""; 
+            if (passAction === "in") handleSubmit("in");
+            else if (passAction === "ga") {
+                gaMode = true;
+                showToast("GA Mode: ON (Bypass Stok)");
+                initAutocomplete();
+            }
+        } else showToast("❌ Salah!"); 
+    }
+    function closePassPopup() { document.getElementById("passPopup").style.display = "none"; document.getElementById("adminPass").value = ""; }
 
     document.getElementById("addRow").onclick = () => {
         const container = document.getElementById("itemContainer");
@@ -318,7 +334,7 @@ function setupAutocomplete(input, box, data, isItem=false) {
         container.appendChild(clone); initAutocomplete();
     };
     document.addEventListener("click", e => { if (e.target.classList.contains("delete-row")) e.target.closest(".item-row").remove(); });
-    document.getElementById("btnIn").onclick = () => document.getElementById("passPopup").style.display = "flex";
+    document.getElementById("btnIn").onclick = () => { passAction = "in"; document.getElementById("passPopup").style.display = "flex"; };
     document.getElementById("btnOut").onclick = () => handleSubmit("out");
     window.onload = () => fetchDataAndUpdateUI(true);
 </script>
