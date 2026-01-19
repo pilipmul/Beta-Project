@@ -44,7 +44,6 @@
             padding-bottom: 10px; padding-top: 5px; position: relative; 
         }
 
-        /* MODIFIKASI WRAPPER QTY UNTUK OVERLAY STOK */
         .qty-wrapper {
             position: relative;
             display: grid;
@@ -58,9 +57,9 @@
             grid-area: 1/1;
             font-size: 1.1rem;
             font-weight: 700;
-            color: rgba(220, 38, 38, 0.3); /* Merah Transparansi 30% */
+            color: rgba(220, 38, 38, 0.3);
             pointer-events: none;
-            display: none; /* Muncul hanya saat GA Mode & Item terpilih */
+            display: none;
             z-index: 1;
         }
 
@@ -72,6 +71,9 @@
             padding: 10px 0;
             -moz-appearance: textfield;
         }
+        
+        /* Menghilangkan placeholder saat stok muncul */
+        input.qty.hide-placeholder::placeholder { color: transparent; }
 
         input.qty::-webkit-outer-spin-button,
         input.qty::-webkit-inner-spin-button {
@@ -233,8 +235,8 @@
         } else {
             showToast("GA Mode: OFF");
             btnHist.style.display = "none";
-            // Sembunyikan semua overlay saat GA OFF
             document.querySelectorAll(".stock-overlay").forEach(s => s.style.display = "none");
+            document.querySelectorAll(".qty").forEach(q => q.classList.remove("hide-placeholder"));
         }
         initAutocomplete();
     }
@@ -274,16 +276,24 @@ function initAutocomplete() {
     document.querySelectorAll(".item-row").forEach(row => {
         const itemInput = row.querySelector(".item");
         const itemBox = row.querySelector(".autocomplete-list");
+        const qtyInput = row.querySelector(".qty");
         const overlay = row.querySelector(".stock-overlay");
         
         itemBox.innerHTML = "";
         itemBox.style.display = "none";
         
-        setupAutocomplete(itemInput, itemBox, itemData, true, overlay);
+        setupAutocomplete(itemInput, itemBox, itemData, true, overlay, qtyInput);
+        
+        // Listener baru untuk qty input
+        qtyInput.oninput = () => {
+            if (gaMode && overlay) {
+                overlay.style.display = (qtyInput.value.trim() === "" && overlay.textContent !== "") ? "block" : "none";
+            }
+        };
     });
 }
 
-function setupAutocomplete(input, box, data, isItem=false, overlay=null) {
+function setupAutocomplete(input, box, data, isItem=false, overlay=null, qtyInput=null) {
     if(!input || !box) return;
 
     const newInput = input.cloneNode(true);
@@ -292,14 +302,16 @@ function setupAutocomplete(input, box, data, isItem=false, overlay=null) {
     newInput.addEventListener("input", () => {
         const val = newInput.value.trim().toLowerCase();
         
-        // Update overlay stok jika item ditemukan (khusus Item)
-        if (isItem && overlay) {
+        if (isItem && overlay && qtyInput) {
             const currentVal = newInput.value.trim();
             if (gaMode && itemStock[currentVal] !== undefined) {
                 overlay.textContent = itemStock[currentVal];
-                overlay.style.display = "block";
+                overlay.style.display = (qtyInput.value === "") ? "block" : "none";
+                qtyInput.classList.add("hide-placeholder");
             } else {
                 overlay.style.display = "none";
+                overlay.textContent = "";
+                qtyInput.classList.remove("hide-placeholder");
             }
         }
 
@@ -320,10 +332,10 @@ function setupAutocomplete(input, box, data, isItem=false, overlay=null) {
             div.onclick = () => { 
                 newInput.value = div.textContent; 
                 box.style.display = "none"; 
-                // Trigger update overlay setelah pilih dari list
-                if (isItem && overlay && gaMode) {
+                if (isItem && overlay && gaMode && qtyInput) {
                     overlay.textContent = itemStock[div.textContent] || 0;
-                    overlay.style.display = "block";
+                    overlay.style.display = (qtyInput.value === "") ? "block" : "none";
+                    qtyInput.classList.add("hide-placeholder");
                 }
             };
         });
@@ -400,9 +412,10 @@ function setupAutocomplete(input, box, data, isItem=false, overlay=null) {
         const firstRow = container.children[0];
         const clone = firstRow.cloneNode(true);
         clone.querySelectorAll("input, textarea").forEach(i => { i.value = ""; i.style.height = "42px"; });
-        // Reset overlay untuk baris baru
         const o = clone.querySelector(".stock-overlay");
         if(o) o.style.display = "none";
+        const q = clone.querySelector(".qty");
+        if(q) q.classList.remove("hide-placeholder");
         container.appendChild(clone); initAutocomplete();
     };
     document.addEventListener("click", e => { if (e.target.classList.contains("delete-row")) e.target.closest(".item-row").remove(); });
