@@ -97,12 +97,14 @@
             position: absolute; top: 35px; right: 10px; 
             background: white; border: 1px solid #1877f2; 
             border-radius: 8px; display: none; flex-direction: column; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15); pointer-events: auto; min-width: 100px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); pointer-events: auto; min-width: 110px;
         }
         .dropdown-item { 
             padding: 10px 15px; font-size: 0.9rem; cursor: pointer; 
             color: #1877f2; font-weight: 600; text-align: left;
+            border-bottom: 1px solid #eee;
         }
+        .dropdown-item:last-child { border-bottom: none; }
         .dropdown-item:hover { background: #f0f7ff; border-radius: 8px; }
 
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -132,6 +134,7 @@
         </button>
         <div id="myDropdown" class="dropdown-menu">
             <div class="dropdown-item" onclick="toggleGAMode()">GA Mode</div>
+            <div id="btnHistoryGA" class="dropdown-item" style="display:none;" onclick="toggleHistoryPopup(event)">~5 Trx</div>
         </div>
     </div>
     
@@ -192,10 +195,21 @@
             document.getElementById("passPopup").style.display = "flex";
             document.getElementById("adminPass").focus();
         } else {
-            gaMode = false;
-            showToast("GA Mode: OFF");
-            initAutocomplete();
+            updateGAUI(false);
         }
+    }
+
+    function updateGAUI(status) {
+        gaMode = status;
+        const btnHist = document.getElementById("btnHistoryGA");
+        if (gaMode) {
+            showToast("GA Mode: ON (Bypass Stok)");
+            btnHist.style.display = "block";
+        } else {
+            showToast("GA Mode: OFF");
+            btnHist.style.display = "none";
+        }
+        initAutocomplete();
     }
 
     async function fetchDataAndUpdateUI(isInitialLoad = true) {
@@ -302,7 +316,19 @@ function setupAutocomplete(input, box, data, isItem=false) {
     function showToast(m) { const t = document.getElementById("popupToast"); t.textContent = m; t.style.display = "block"; setTimeout(() => t.style.display="none", 2500); }
     function showSuccessPopup(m, its) { document.getElementById("successMode").textContent = m.toUpperCase(); document.getElementById("successItems").innerHTML = its.map(i => `• ${i.item} = ${i.qty}`).join('<br>'); document.getElementById("successPopup").style.display = "flex"; }
     function closeSuccessPopup() { document.getElementById("successPopup").style.display = "none"; }
-    function toggleHistoryPopup(event) { if (event) event.stopPropagation(); const p = document.getElementById("historyPopup"); const isVisible = p.style.display === "block"; if (!isVisible) { p.style.display = "block"; document.getElementById("historyList").innerHTML = lastTransactions.map(t => `<div style="font-size:0.8rem; border-bottom:1px solid #eee; padding:8px; background:#f3f4f6; margin-bottom:5px; border-radius:5px;"><b>${t[0]}</b> <span style="color:${t[1]==='in'?'#10b981':'#ef4444'}">${t[1].toUpperCase()}</span> ${t[2]}</div>`).join(''); } else { p.style.display = "none"; } }
+    
+    function toggleHistoryPopup(event) { 
+        if (event) event.stopPropagation(); 
+        document.getElementById("myDropdown").style.display = "none";
+        const p = document.getElementById("historyPopup"); 
+        const isVisible = p.style.display === "block"; 
+        if (!isVisible) { 
+            p.style.display = "block"; 
+            document.getElementById("historyList").innerHTML = lastTransactions.map(t => `<div style="font-size:0.8rem; border-bottom:1px solid #eee; padding:8px; background:#f3f4f6; margin-bottom:5px; border-radius:5px;"><b>${t[0]}</b> <span style="color:${t[1]==='in'?'#10b981':'#ef4444'}">${t[1].toUpperCase()}</span> ${t[2]}</div>`).join(''); 
+        } else { 
+            p.style.display = "none"; 
+        } 
+    }
     
     document.addEventListener("click", function(event) { 
         const historyPopup = document.getElementById("historyPopup"); 
@@ -317,9 +343,7 @@ function setupAutocomplete(input, box, data, isItem=false) {
             document.getElementById("adminPass").value = ""; 
             if (passAction === "in") handleSubmit("in");
             else if (passAction === "ga") {
-                gaMode = true;
-                showToast("GA Mode: ON (Bypass Stok)");
-                initAutocomplete();
+                updateGAUI(true);
             }
         } else showToast("❌ Salah!"); 
     }
