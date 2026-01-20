@@ -237,11 +237,11 @@
         const btnHist = document.getElementById("btnHistoryGA");
         const gaInd = document.getElementById("gaIndicator");
         if (gaMode) {
-            showToast("GA Mode: ON (Bypass Stok)");
+            showToast("GA Mode");
             btnHist.style.display = "block";
             gaInd.style.display = "block"; // Tampilkan tulisan GA
         } else {
-            showToast("GA Mode: OFF");
+            showToast("User Mode");
             btnHist.style.display = "none";
             gaInd.style.display = "none"; // Sembunyikan tulisan GA
             document.querySelectorAll(".stock-overlay").forEach(s => s.style.display = "none");
@@ -267,7 +267,7 @@
         
     } catch (e) { 
         console.error(e);
-        showToast("❌ Gagal Sinkronisasi!"); 
+        showToast("❌ Sync Error"); 
     } finally { 
         if(icon) setTimeout(() => icon.classList.remove("spinning"), 600); 
     }
@@ -369,7 +369,7 @@ function setupAutocomplete(input, box, data, isItem=false, overlay=null, qtyInpu
             const res = await resp.json();
             if (res.result === "success") { showSuccessPopup(mode, items); document.getElementById("myForm").reset(); fetchDataAndUpdateUI(false); }
             else { showToast("❌ " + res.error); }
-        } catch (e) { showToast("❌ Koneksi Gagal"); }
+        } catch (e) { showToast("❌ Connection Lost"); }
         finally { document.getElementById("loaderOverlay").style.display = "none"; }
     }
 
@@ -403,7 +403,7 @@ function setupAutocomplete(input, box, data, isItem=false, overlay=null, qtyInpu
     });
 
     function checkPassword() { 
-        if (document.getElementById("adminPass").value === "admin123") { 
+        if (document.getElementById("adminPass").value === "azza") { 
             document.getElementById("passPopup").style.display = "none"; 
             document.getElementById("adminPass").value = ""; 
             if (passAction === "in") handleSubmit("in");
