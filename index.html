@@ -21,11 +21,7 @@
             position: relative; text-align: center; margin-bottom: 20px;
         }
         
-        #titleBtn { 
-            width: 100%; max-width: 280px; transition: opacity 0.2s; 
-            user-select: none; -webkit-user-drag: none; -webkit-touch-callout: none;
-        }
-
+        #titleBtn { width: 100%; max-width: 280px; transition: opacity 0.2s; user-select: none; -webkit-user-drag: none; }
         #nameWrapper { position: relative; padding-top: 7px; border-top: 1px solid #1877f2; padding-bottom: 7px; border-bottom: 1px solid #1877f2; }
         
         input, textarea { 
@@ -36,58 +32,20 @@
         input:focus, textarea:focus { outline: none; }
 
         .row-3col { 
-            display: grid; 
-            grid-template-columns: 40% 20% 40%; 
-            gap: 0; 
-            align-items: center; 
-            margin-bottom: 10px; border-bottom: 1px solid #1877f2; 
+            display: grid; grid-template-columns: 40% 20% 40%; gap: 0; 
+            align-items: center; margin-bottom: 10px; border-bottom: 1px solid #1877f2; 
             padding-bottom: 10px; padding-top: 5px; position: relative; 
         }
 
-        .qty-wrapper {
-            position: relative;
-            display: grid;
-            place-items: center;
-            border-left: 1px solid #1877f2; 
-            border-right: 1px solid #1877f2;
-            height: 42px;
-        }
-
-        .stock-overlay {
-            grid-area: 1/1;
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: rgba(220, 38, 38, 0.6);
-            pointer-events: none;
-            display: none;
-            z-index: 1;
-        }
-
-        input.qty { 
-            grid-area: 1/1;
-            position: relative;
-            z-index: 2;
-            background: transparent !important;
-            padding: 10px 0;
-            -moz-appearance: textfield;
-        }
-        
+        .qty-wrapper { position: relative; display: grid; place-items: center; border-left: 1px solid #1877f2; border-right: 1px solid #1877f2; height: 42px; }
+        .stock-overlay { grid-area: 1/1; font-size: 1.1rem; font-weight: 700; color: rgba(220, 38, 38, 0.6); pointer-events: none; display: none; z-index: 1; }
+        input.qty { grid-area: 1/1; position: relative; z-index: 2; background: transparent !important; padding: 10px 0; -moz-appearance: textfield; }
         input.qty.hide-placeholder::placeholder { color: transparent; }
-
-        input.qty::-webkit-outer-spin-button,
-        input.qty::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
+        input.qty::-webkit-outer-spin-button, input.qty::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         
         textarea.desc { resize: none; overflow-y: hidden; padding-top: 10px; padding-right: 25px; }
-        
         .btn-group { display: flex; gap: 8px; margin-top: 10px; justify-content: center; position: relative; align-items: center; }
-        
-        .add-row { 
-            background-color: transparent; border: none; width: auto; 
-            padding: 8px; flex: none; display: flex; justify-content: center; align-items: center;
-        }
+        .add-row { background-color: transparent; border: none; width: auto; padding: 8px; flex: none; display: flex; justify-content: center; align-items: center; }
         
         button { flex: 1; padding: 5px 14px; background-color: #1877f2; color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: opacity 0.2s; }
         button:active { opacity: 0.7; }
@@ -97,13 +55,7 @@
         .autocomplete-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; }
         .autocomplete-item:hover { background: #1877f2; color: #fff; }
         
-        .delete-row { 
-            position: absolute; top: -10px; right: -2px; 
-            background: transparent; border: none; color: #dc2626; 
-            font-weight: bold; cursor: pointer; font-size: 1.1rem; 
-            padding: 5px; opacity: 0.6; transition: opacity 0.2s;
-        }
-        .delete-row:hover { opacity: 1; }
+        .delete-row { position: absolute; top: -10px; right: -2px; background: transparent; border: none; color: #dc2626; font-weight: bold; cursor: pointer; font-size: 1.1rem; padding: 5px; opacity: 0.6; }
         #itemContainer .item-row:first-child .delete-row { display: none; }
         
         .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 6000; }
@@ -113,35 +65,22 @@
         .popup-toast { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(33, 33, 33, 0.95); color: #fff; padding: 12px 24px; border-radius: 12px; display: none; z-index: 7000; width: fit-content; max-width: 85%; white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.4); pointer-events: none; font-weight: 600; }
         
         .header-actions { position: absolute; top: 0; left: 0; right: 0; height: 40px; pointer-events: none; z-index: 10; display: flex; align-items: center; }
-        #refreshBtn { position: absolute; top: 10px; left: 10px; pointer-events: auto; }
-        #hamburgerBtn { position: absolute; top: 10px; right: 10px; pointer-events: auto; }
+        #refreshBtn, #hamburgerBtn { position: absolute; top: 10px; pointer-events: auto; background: none; border: none; padding: 0; }
+        #refreshBtn { left: 10px; }
+        #hamburgerBtn { right: 10px; }
         
-        #gaIndicator { 
-            position: absolute; top: 10px; left: 35px; 
-            color: #1877f2; font-weight: 800; font-size: 14px; 
-            display: none; pointer-events: none; line-height: 20px;
-        }
+        #gaIndicator { position: absolute; top: 10px; left: 35px; color: #1877f2; font-weight: 800; font-size: 14px; display: none; pointer-events: none; }
 
-        .dropdown-menu { 
-            position: absolute; top: 35px; right: 10px; 
-            background: white; border: 1px solid #1877f2; 
-            border-radius: 8px; display: none; flex-direction: column; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15); pointer-events: auto; min-width: 110px;
-        }
-        .dropdown-item { 
-            padding: 10px 15px; font-size: 0.9rem; cursor: pointer; 
-            color: #1877f2; font-weight: 600; text-align: left;
-            border-bottom: 1px solid #eee;
-        }
+        .dropdown-menu { position: absolute; top: 35px; right: 10px; background: white; border: 1px solid #1877f2; border-radius: 8px; display: none; flex-direction: column; box-shadow: 0 4px 12px rgba(0,0,0,0.15); pointer-events: auto; min-width: 110px; }
+        .dropdown-item { padding: 10px 15px; font-size: 0.9rem; cursor: pointer; color: #1877f2; font-weight: 600; text-align: left; border-bottom: 1px solid #eee; }
         .dropdown-item:last-child { border-bottom: none; }
-        .dropdown-item:hover { background: #f0f7ff; border-radius: 8px; }
 
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .spinning { animation: spin 1s linear infinite; }
-        #historyPopup { position: absolute; top: 25px; left: 30px; background-color: #ffffff !important; border: 2px solid #1877f2; border-radius: 8px; width: 280px; max-height: 350px; overflow-y: auto; padding: 12px; display: none; text-align: left; box-shadow: 0 8px 24px rgba(0,0,0,0.4); z-index: 5000; }
+        #historyPopup { position: absolute; top: 25px; left: 30px; background: #fff; border: 2px solid #1877f2; border-radius: 8px; width: 280px; max-height: 350px; overflow-y: auto; padding: 12px; display: none; text-align: left; box-shadow: 0 8px 24px rgba(0,0,0,0.4); z-index: 5000; }
         #loaderOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.4); display: none; justify-content: center; align-items: center; z-index: 9999; }
         .loader { border: 6px solid #f3f3f3; border-top: 6px solid #1877f2; border-radius: 50%; width: 50px; height: 50px; animation: spin 0.8s linear infinite; }
-        #descPopupInput { width: 100% !important; height: 150px !important; border: 1px solid #1877f2; margin-bottom: 15px; border-radius: 12px; text-align: center; padding: 15px; resize: vertical; display: flex; align-items: center; justify-content: center; background-color: #f9f9f9; line-height: 1.5; }
+        #descPopupInput { width: 100%; height: 150px; border: 1px solid #1877f2; margin-bottom: 15px; border-radius: 12px; text-align: center; padding: 15px; resize: vertical; background: #f9f9f9; }
     </style>
 </head>
 <body>
@@ -151,13 +90,13 @@
     <div id="popupToast" class="popup-toast"></div>
 
     <div class="header-actions">
-        <button id="refreshBtn" type="button" onclick="fetchDataAndUpdateUI()" style="background:none; border:none; width:auto; padding:0; display:flex; align-items:center;">
+        <button id="refreshBtn" type="button" onclick="fetchDataAndUpdateUI()">
             <svg id="refreshIcon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#1877f2">
                 <path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/>
             </svg>
         </button>
         <div id="gaIndicator">GA</div> 
-        <button id="hamburgerBtn" type="button" onclick="toggleDropdown(event)" style="background:none; border:none; width:auto; padding:0; display:flex; align-items:center;">
+        <button id="hamburgerBtn" type="button" onclick="toggleDropdown(event)">
             <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#1877f2">
                 <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/>
             </svg>
@@ -171,12 +110,12 @@
     <div id="historyPopup"><h4 style="margin:0 0 10px 0; text-align:center; color:#1877f2;">~5 Trx</h4><div id="historyList"></div></div>
     
     <div style="text-align: center; margin: 20px 0;">
-        <img id="titleBtn" src="https://raw.githubusercontent.com/pilipmul/PBC-cek-Piutang/c917d70c8d2a8f1630b8dd1400a2d13c2aa55d65/Title%20PBC%20B.png" alt="PBC SyncFlow" oncontextmenu="false" draggable="false">
+        <img id="titleBtn" src="https://raw.githubusercontent.com/pilipmul/PBC-cek-Piutang/c917d70c8d2a8f1630b8dd1400a2d13c2aa55d65/Title%20PBC%20B.png" alt="PBC SyncFlow">
     </div>
     
     <form id="myForm">
         <div id="nameWrapper">
-            <input type="text" id="name" class="name" placeholder="Name" autocomplete="off" required>
+            <input type="text" id="name" placeholder="Name" autocomplete="off" required>
             <div id="nameList" class="autocomplete-list"></div>
         </div>
 
@@ -212,23 +151,11 @@
 <div id="passPopup" class="popup-overlay"><div class="popup-box" style="width:92%;"><input type="password" id="adminPass" placeholder="Admin Password" style="border:1px solid #1877f2; margin-bottom:15px; border-radius:12px; height:50px;"><div class="btn-group" style="gap:15px;"><button class="modal-btn" onclick="checkPassword()">OK</button><button class="modal-btn" onclick="closePassPopup()" style="background:#595959;">Batal</button></div></div></div>
 
 <script>
+    // DATA SEGERA DIPANGGIL BEGITU SCRIPT TERBACA
     const scriptURL = 'https://script.google.com/macros/s/AKfycbzNzaOwIeHkxlp9wdeHDlCLTfqbXlS-A6yzC8c-m4KDIzT-JlBLK_5QqBc6lHXmK41GSQ/exec';
     let nameData = [], itemData = [], itemStock = {}, lastTransactions = [], gaMode = false, activeTextarea = null, longPressTimer, passAction = "";
 
-    // UI Helpers
-    function toggleDropdown(e) {
-        e.stopPropagation();
-        const d = document.getElementById("myDropdown");
-        d.style.display = (d.style.display === "flex") ? "none" : "flex";
-    }
-
-    function showToast(m) {
-        const t = document.getElementById("popupToast");
-        t.textContent = m; t.style.display = "block";
-        setTimeout(() => t.style.display="none", 2500);
-    }
-
-    // Data Fetching
+    // Fungsi Utama Fetch Data
     async function fetchDataAndUpdateUI() {
         const icon = document.getElementById("refreshIcon");
         if(icon) icon.classList.add("spinning");
@@ -247,7 +174,26 @@
         }
     }
 
-    // Autocomplete Logic
+    // Jalankan segera tanpa menunggu gambar (Instant Load)
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", fetchDataAndUpdateUI);
+    } else {
+        fetchDataAndUpdateUI();
+    }
+
+    // --- LOGIC FUNCTIONS ---
+    function showToast(m) {
+        const t = document.getElementById("popupToast");
+        t.textContent = m; t.style.display = "block";
+        setTimeout(() => t.style.display="none", 2500);
+    }
+
+    function toggleDropdown(e) {
+        e.stopPropagation();
+        const d = document.getElementById("myDropdown");
+        d.style.display = (d.style.display === "flex") ? "none" : "flex";
+    }
+
     function initAllAutocompletes() {
         setupAutocomplete(document.getElementById("name"), document.getElementById("nameList"), nameData);
         document.querySelectorAll(".item-row").forEach(row => {
@@ -285,17 +231,8 @@
                 };
             });
         });
-
-        if(isItem && row) {
-            const qtyInput = row.querySelector(".qty");
-            qtyInput.oninput = () => {
-                const overlay = row.querySelector(".stock-overlay");
-                if (gaMode && overlay) overlay.style.display = qtyInput.value === "" ? "block" : "none";
-            };
-        }
     }
 
-    // Transaction Submission
     async function handleSubmit(mode) {
         const name = document.getElementById("name").value.trim();
         if (!nameData.includes(name)) return showToast("⚠️ Pilih Nama!");
@@ -324,7 +261,6 @@
         finally { document.getElementById("loaderOverlay").style.display = "none"; }
     }
 
-    // Mode & Password Handling
     function toggleGAMode() {
         document.getElementById("myDropdown").style.display = "none";
         if (!gaMode) { passAction = "ga"; document.getElementById("passPopup").style.display = "flex"; document.getElementById("adminPass").focus(); }
@@ -335,10 +271,6 @@
         gaMode = status;
         document.getElementById("btnHistoryGA").style.display = status ? "block" : "none";
         document.getElementById("gaIndicator").style.display = status ? "block" : "none";
-        if(!status) {
-            document.querySelectorAll(".stock-overlay").forEach(s => s.style.display = "none");
-            document.querySelectorAll(".qty").forEach(q => q.classList.remove("hide-placeholder"));
-        }
         showToast(status ? "GA Mode" : "User Mode");
         initAllAutocompletes();
     }
@@ -351,16 +283,13 @@
         } else showToast("❌ Salah!");
     }
 
-    function closePassPopup() { document.getElementById("passPopup").style.display = "none"; document.getElementById("adminPass").value = ""; }
+    function closePassPopup() { document.getElementById("passPopup").style.display = "none"; }
 
-    // Row Management
     document.getElementById("addRow").onclick = () => {
         const container = document.getElementById("itemContainer");
         if (container.children.length >= 5) return showToast("⚠️ Maksimal 5");
         const clone = container.children[0].cloneNode(true);
-        clone.querySelectorAll("input, textarea").forEach(i => { i.value = ""; i.style.height = "42px"; });
-        clone.querySelector(".stock-overlay").style.display = "none";
-        clone.querySelector(".qty").classList.remove("hide-placeholder");
+        clone.querySelectorAll("input, textarea").forEach(i => i.value = "");
         container.appendChild(clone);
         initAllAutocompletes();
     };
@@ -372,7 +301,6 @@
         if (hist.style.display === "block" && !hist.contains(e.target) && !e.target.closest("#btnHistoryGA")) hist.style.display = "none";
     });
 
-    // Popups & Long Press
     function toggleHistoryPopup(e) {
         if (e) e.stopPropagation();
         const p = document.getElementById("historyPopup");
@@ -392,7 +320,7 @@
                 const popIn = document.getElementById("descPopupInput");
                 popIn.value = activeTextarea.value;
                 document.getElementById("descPopup").style.display = "flex";
-                setTimeout(() => { popIn.focus(); popIn.setSelectionRange(popIn.value.length, popIn.value.length); }, 100);
+                setTimeout(() => { popIn.focus(); }, 100);
             }, 600);
         }
     }
@@ -403,8 +331,6 @@
 
     document.getElementById("btnIn").onclick = () => { passAction = "in"; document.getElementById("passPopup").style.display = "flex"; };
     document.getElementById("btnOut").onclick = () => handleSubmit("out");
-    
-    window.onload = fetchDataAndUpdateUI;
 </script>
 </body>
 </html>
