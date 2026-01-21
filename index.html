@@ -29,27 +29,21 @@
         #nameWrapper { position: relative; padding-top: 7px; border-top: 1px solid #1877f2; padding-bottom: 7px; border-bottom: 1px solid #1877f2; }
         
         input, textarea { 
-            width: 100%; 
-            padding: 12px 8px; /* Tambah padding internal agar teks lega */
-            border: none; 
-            font-size: 1rem; 
-            background-color: transparent; 
-            text-align: center; 
-            height: auto; /* Jangan dipaksa 42px, biarkan fleksibel */
-            min-height: 48px; /* Samakan dengan qty-wrapper */
-            line-height: 1.4; 
-            display: block;
+            width: 100%; padding: 10px; border: none; font-size: 1rem; 
+            background-color: transparent; text-align: center; 
+            height: 42px; line-height: 22px; display: block;
         }
         input:focus, textarea:focus { outline: none; }
 
+        /* PERBAIKAN: Membuat baris seimbang dan garis vertikal penuh */
         .row-3col { 
             display: grid; 
             grid-template-columns: 40% 20% 40%; 
             gap: 0; 
-            align-items: stretch; 
-            border-bottom: 1px solid #1877f2; 
-            margin-bottom: 0; 
-            padding: 0; 
+            align-items: stretch; /* Membuat semua kolom sama tinggi */
+            margin-top: 15px; /* Memberi celah antar baris yang konsisten */
+            border: 1px solid #1877f2; 
+            border-radius: 0; /* Menghilangkan radius agar garis vertikal rapi */
             position: relative; 
         }
 
@@ -59,15 +53,14 @@
             place-items: center;
             border-left: 1px solid #1877f2; 
             border-right: 1px solid #1877f2;
-            height: auto; 
-            min-height: 48px;
+            height: 100%; /* Mengikuti tinggi baris */
         }
 
         .stock-overlay {
             grid-area: 1/1;
             font-size: 1.1rem;
             font-weight: 700;
-            color: rgba(220, 38, 38, 0.6); /* Dipertebal menjadi 60% */
+            color: rgba(220, 38, 38, 0.6);
             pointer-events: none;
             display: none;
             z-index: 1;
@@ -80,6 +73,7 @@
             background: transparent !important;
             padding: 10px 0;
             -moz-appearance: textfield;
+            height: 100%;
         }
         
         input.qty.hide-placeholder::placeholder { color: transparent; }
@@ -90,9 +84,9 @@
             margin: 0;
         }
         
-        textarea.desc { resize: none; overflow-y: hidden; padding-top: 10px; padding-right: 25px; }
+        textarea.desc { resize: none; overflow-y: hidden; padding-top: 10px; padding-right: 25px; height: 100%; }
         
-        .btn-group { display: flex; gap: 8px; margin-top: 10px; justify-content: center; position: relative; align-items: center; }
+        .btn-group { display: flex; gap: 8px; margin-top: 20px; justify-content: center; position: relative; align-items: center; }
         
         .add-row { 
             background-color: transparent; border: none; width: auto; 
@@ -108,12 +102,13 @@
         .autocomplete-item:hover { background: #1877f2; color: #fff; }
         
         .delete-row { 
-            position: absolute; top: -10px; right: -2px; 
-            background: transparent; border: none; color: #dc2626; 
-            font-weight: bold; cursor: pointer; font-size: 1.1rem; 
-            padding: 5px; opacity: 0.6; transition: opacity 0.2s;
+            position: absolute; top: -12px; right: -8px; 
+            background: #fff; border: 1px solid #dc2626; color: #dc2626; 
+            border-radius: 50%; width: 20px; height: 20px;
+            font-weight: bold; cursor: pointer; font-size: 0.8rem; 
+            display: flex; align-items: center; justify-content: center;
+            z-index: 5;
         }
-        .delete-row:hover { opacity: 1; }
         #itemContainer .item-row:first-child .delete-row { display: none; }
         
         .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 6000; }
@@ -126,7 +121,6 @@
         #refreshBtn { position: absolute; top: 10px; left: 10px; pointer-events: auto; }
         #hamburgerBtn { position: absolute; top: 10px; right: 10px; pointer-events: auto; }
         
-        /* Gaya untuk teks Indikator GA */
         #gaIndicator { 
             position: absolute; top: 10px; left: 35px; 
             color: #1877f2; font-weight: 800; font-size: 14px; 
@@ -249,11 +243,11 @@
         if (gaMode) {
             showToast("GA Mode");
             btnHist.style.display = "block";
-            gaInd.style.display = "block"; // Tampilkan tulisan GA
+            gaInd.style.display = "block";
         } else {
             showToast("User Mode");
             btnHist.style.display = "none";
-            gaInd.style.display = "none"; // Sembunyikan tulisan GA
+            gaInd.style.display = "none";
             document.querySelectorAll(".stock-overlay").forEach(s => s.style.display = "none");
             document.querySelectorAll(".qty").forEach(q => q.classList.remove("hide-placeholder"));
         }
@@ -261,104 +255,86 @@
     }
 
     async function fetchDataAndUpdateUI(isInitialLoad = true) {
-    const icon = document.getElementById("refreshIcon");
-    if(icon) icon.classList.add("spinning");
-    
-    try {
-        const resp = await fetch(`${scriptURL}?action=getDropdownData`);
-        const data = await resp.json();
-        
-        nameData = data.names || []; 
-        itemData = data.items || []; 
-        itemStock = data.stocks || {}; 
-        lastTransactions = data.transactions || [];
-        
-        initAutocomplete();
-        
-    } catch (e) { 
-        console.error(e);
-        showToast("❌ Sync Error"); 
-    } finally { 
-        if(icon) setTimeout(() => icon.classList.remove("spinning"), 600); 
-    }
-}
-
-function initAutocomplete() {
-    const nameInput = document.getElementById("name");
-    const nameList = document.getElementById("nameList");
-    
-    nameList.innerHTML = "";
-    nameList.style.display = "none";
-    
-    setupAutocomplete(nameInput, nameList, nameData);
-
-    document.querySelectorAll(".item-row").forEach(row => {
-        const itemInput = row.querySelector(".item");
-        const itemBox = row.querySelector(".autocomplete-list");
-        const qtyInput = row.querySelector(".qty");
-        const overlay = row.querySelector(".stock-overlay");
-        
-        itemBox.innerHTML = "";
-        itemBox.style.display = "none";
-        
-        setupAutocomplete(itemInput, itemBox, itemData, true, overlay, qtyInput);
-        
-        qtyInput.oninput = () => {
-            if (gaMode && overlay) {
-                overlay.style.display = (qtyInput.value.trim() === "" && overlay.textContent !== "") ? "block" : "none";
-            }
-        };
-    });
-}
-
-function setupAutocomplete(input, box, data, isItem=false, overlay=null, qtyInput=null) {
-    if(!input || !box) return;
-
-    const newInput = input.cloneNode(true);
-    input.parentNode.replaceChild(newInput, input);
-
-    newInput.addEventListener("input", () => {
-        const val = newInput.value.trim().toLowerCase();
-        
-        if (isItem && overlay && qtyInput) {
-            const currentVal = newInput.value.trim();
-            if (gaMode && itemStock[currentVal] !== undefined) {
-                overlay.textContent = itemStock[currentVal];
-                overlay.style.display = (qtyInput.value === "") ? "block" : "none";
-                qtyInput.classList.add("hide-placeholder");
-            } else {
-                overlay.style.display = "none";
-                overlay.textContent = "";
-                qtyInput.classList.remove("hide-placeholder");
-            }
+        const icon = document.getElementById("refreshIcon");
+        if(icon) icon.classList.add("spinning");
+        try {
+            const resp = await fetch(`${scriptURL}?action=getDropdownData`);
+            const data = await resp.json();
+            nameData = data.names || []; 
+            itemData = data.items || []; 
+            itemStock = data.stocks || {}; 
+            lastTransactions = data.transactions || [];
+            initAutocomplete();
+        } catch (e) { 
+            console.error(e);
+            showToast("❌ Sync Error"); 
+        } finally { 
+            if(icon) setTimeout(() => icon.classList.remove("spinning"), 600); 
         }
+    }
 
-        if (!val) { box.style.display = "none"; return; }
-        
-        const match = data.filter(d => {
-            if (!d.toLowerCase().includes(val)) return false;
-            if (isItem && !gaMode && (itemStock[d] || 0) <= 0) return false;
-            return true;
-        }).slice(0, 12);
-        
-        if (!match.length) { box.style.display = "none"; return; }
-        
-        box.innerHTML = match.map(m => `<div class="autocomplete-item">${m}</div>`).join('');
-        box.style.display = "block";
-        
-        box.querySelectorAll(".autocomplete-item").forEach(div => {
-            div.onclick = () => { 
-                newInput.value = div.textContent; 
-                box.style.display = "none"; 
-                if (isItem && overlay && gaMode && qtyInput) {
-                    overlay.textContent = itemStock[div.textContent] || 0;
-                    overlay.style.display = (qtyInput.value === "") ? "block" : "none";
-                    qtyInput.classList.add("hide-placeholder");
+    function initAutocomplete() {
+        const nameInput = document.getElementById("name");
+        const nameList = document.getElementById("nameList");
+        nameList.innerHTML = "";
+        nameList.style.display = "none";
+        setupAutocomplete(nameInput, nameList, nameData);
+        document.querySelectorAll(".item-row").forEach(row => {
+            const itemInput = row.querySelector(".item");
+            const itemBox = row.querySelector(".autocomplete-list");
+            const qtyInput = row.querySelector(".qty");
+            const overlay = row.querySelector(".stock-overlay");
+            itemBox.innerHTML = "";
+            itemBox.style.display = "none";
+            setupAutocomplete(itemInput, itemBox, itemData, true, overlay, qtyInput);
+            qtyInput.oninput = () => {
+                if (gaMode && overlay) {
+                    overlay.style.display = (qtyInput.value.trim() === "" && overlay.textContent !== "") ? "block" : "none";
                 }
             };
         });
-    });
-}
+    }
+
+    function setupAutocomplete(input, box, data, isItem=false, overlay=null, qtyInput=null) {
+        if(!input || !box) return;
+        const newInput = input.cloneNode(true);
+        input.parentNode.replaceChild(newInput, input);
+        newInput.addEventListener("input", () => {
+            const val = newInput.value.trim().toLowerCase();
+            if (isItem && overlay && qtyInput) {
+                const currentVal = newInput.value.trim();
+                if (gaMode && itemStock[currentVal] !== undefined) {
+                    overlay.textContent = itemStock[currentVal];
+                    overlay.style.display = (qtyInput.value === "") ? "block" : "none";
+                    qtyInput.classList.add("hide-placeholder");
+                } else {
+                    overlay.style.display = "none";
+                    overlay.textContent = "";
+                    qtyInput.classList.remove("hide-placeholder");
+                }
+            }
+            if (!val) { box.style.display = "none"; return; }
+            const match = data.filter(d => {
+                if (!d.toLowerCase().includes(val)) return false;
+                if (isItem && !gaMode && (itemStock[d] || 0) <= 0) return false;
+                return true;
+            }).slice(0, 12);
+            if (!match.length) { box.style.display = "none"; return; }
+            box.innerHTML = match.map(m => `<div class="autocomplete-item">${m}</div>`).join('');
+            box.style.display = "block";
+            box.querySelectorAll(".autocomplete-item").forEach(div => {
+                div.onclick = () => { 
+                    newInput.value = div.textContent; 
+                    box.style.display = "none"; 
+                    if (isItem && overlay && gaMode && qtyInput) {
+                        overlay.textContent = itemStock[div.textContent] || 0;
+                        overlay.style.display = (qtyInput.value === "") ? "block" : "none";
+                        qtyInput.classList.add("hide-placeholder");
+                    }
+                };
+            });
+        });
+    }
 
     async function handleSubmit(mode) {
         const name = document.getElementById("name").value.trim();
@@ -443,4 +419,3 @@ function setupAutocomplete(input, box, data, isItem=false, overlay=null, qtyInpu
 </script>
 </body>
 </html>
-
