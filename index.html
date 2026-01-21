@@ -29,9 +29,16 @@
         #nameWrapper { position: relative; padding-top: 7px; border-top: 1px solid #1877f2; padding-bottom: 7px; border-bottom: 1px solid #1877f2; }
         
         input, textarea { 
-            width: 100%; padding: 10px; border: none; font-size: 1rem; 
-            background-color: transparent; text-align: center; 
-            height: 42px; line-height: 22px; display: block;
+            width: 100%; 
+            padding: 12px 8px; /* Tambah padding internal agar teks lega */
+            border: none; 
+            font-size: 1rem; 
+            background-color: transparent; 
+            text-align: center; 
+            height: auto; /* Jangan dipaksa 42px, biarkan fleksibel */
+            min-height: 48px; /* Samakan dengan qty-wrapper */
+            line-height: 1.4; 
+            display: block;
         }
         input:focus, textarea:focus { outline: none; }
 
@@ -39,9 +46,11 @@
             display: grid; 
             grid-template-columns: 40% 20% 40%; 
             gap: 0; 
-            align-items: center; 
-            margin-bottom: 10px; border-bottom: 1px solid #1877f2; 
-            padding-bottom: 10px; padding-top: 5px; position: relative; 
+            align-items: stretch; 
+            border-bottom: 1px solid #1877f2; 
+            margin-bottom: 0; 
+            padding: 0; 
+            position: relative; 
         }
 
         .qty-wrapper {
@@ -50,7 +59,8 @@
             place-items: center;
             border-left: 1px solid #1877f2; 
             border-right: 1px solid #1877f2;
-            height: 42px;
+            height: auto; 
+            min-height: 48px;
         }
 
         .stock-overlay {
@@ -433,3 +443,4 @@ function setupAutocomplete(input, box, data, isItem=false, overlay=null, qtyInpu
 </script>
 </body>
 </html>
+
