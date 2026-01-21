@@ -35,17 +35,13 @@
         }
         input:focus, textarea:focus { outline: none; }
 
-        /* PERBAIKAN JARAK DAN GARIS VERTIKAL */
         .row-3col { 
             display: grid; 
             grid-template-columns: 40% 20% 40%; 
             gap: 0; 
-            align-items: stretch; /* Garis vertikal akan penuh dari atas ke bawah */
-            margin-bottom: 15px; /* Jarak antar baris yang seimbang */
-            border-bottom: 1px solid #1877f2; 
-            padding-bottom: 0; /* Padding nol agar garis vertikal menyentuh border-bottom */
-            padding-top: 0; 
-            position: relative; 
+            align-items: center; 
+            margin-bottom: 10px; border-bottom: 1px solid #1877f2; 
+            padding-bottom: 10px; padding-top: 5px; position: relative; 
         }
 
         .qty-wrapper {
@@ -54,14 +50,14 @@
             place-items: center;
             border-left: 1px solid #1877f2; 
             border-right: 1px solid #1877f2;
-            height: 100%; /* Mengikuti tinggi baris sepenuhnya */
+            height: 42px;
         }
 
         .stock-overlay {
             grid-area: 1/1;
             font-size: 1.1rem;
             font-weight: 700;
-            color: rgba(220, 38, 38, 0.6);
+            color: rgba(220, 38, 38, 0.6); /* Dipertebal menjadi 60% */
             pointer-events: none;
             display: none;
             z-index: 1;
@@ -120,6 +116,7 @@
         #refreshBtn { position: absolute; top: 10px; left: 10px; pointer-events: auto; }
         #hamburgerBtn { position: absolute; top: 10px; right: 10px; pointer-events: auto; }
         
+        /* Gaya untuk teks Indikator GA */
         #gaIndicator { 
             position: absolute; top: 10px; left: 35px; 
             color: #1877f2; font-weight: 800; font-size: 14px; 
@@ -218,56 +215,162 @@
     const scriptURL = 'https://script.google.com/macros/s/AKfycbzNzaOwIeHkxlp9wdeHDlCLTfqbXlS-A6yzC8c-m4KDIzT-JlBLK_5QqBc6lHXmK41GSQ/exec';
     let nameData = [], itemData = [], itemStock = {}, lastTransactions = [], gaMode = false, activeTextarea = null, longPressTimer, passAction = "";
 
-    function toggleDropdown(e) { e.stopPropagation(); const d = document.getElementById("myDropdown"); d.style.display = (d.style.display === "flex") ? "none" : "flex"; }
-    function toggleGAMode() { document.getElementById("myDropdown").style.display = "none"; if (!gaMode) { passAction = "ga"; document.getElementById("passPopup").style.display = "flex"; document.getElementById("adminPass").focus(); } else { updateGAUI(false); } }
-    function updateGAUI(status) { gaMode = status; const btnHist = document.getElementById("btnHistoryGA"); const gaInd = document.getElementById("gaIndicator"); if (gaMode) { showToast("GA Mode"); btnHist.style.display = "block"; gaInd.style.display = "block"; } else { showToast("User Mode"); btnHist.style.display = "none"; gaInd.style.display = "none"; document.querySelectorAll(".stock-overlay").forEach(s => s.style.display = "none"); document.querySelectorAll(".qty").forEach(q => q.classList.remove("hide-placeholder")); } initAutocomplete(); }
-    async function fetchDataAndUpdateUI(isInitialLoad = true) { const icon = document.getElementById("refreshIcon"); if(icon) icon.classList.add("spinning"); try { const resp = await fetch(`${scriptURL}?action=getDropdownData`); const data = await resp.json(); nameData = data.names || []; itemData = data.items || []; itemStock = data.stocks || {}; lastTransactions = data.transactions || []; initAutocomplete(); } catch (e) { console.error(e); showToast("❌ Sync Error"); } finally { if(icon) setTimeout(() => icon.classList.remove("spinning"), 600); } }
-
-    function initAutocomplete() {
-        const nameInput = document.getElementById("name");
-        const nameList = document.getElementById("nameList");
-        nameList.innerHTML = ""; nameList.style.display = "none";
-        setupAutocomplete(nameInput, nameList, nameData);
-        document.querySelectorAll(".item-row").forEach(row => {
-            const itemInput = row.querySelector(".item");
-            const itemBox = row.querySelector(".autocomplete-list");
-            const qtyInput = row.querySelector(".qty");
-            const overlay = row.querySelector(".stock-overlay");
-            itemBox.innerHTML = ""; itemBox.style.display = "none";
-            setupAutocomplete(itemInput, itemBox, itemData, true, overlay, qtyInput);
-            qtyInput.oninput = () => { if (gaMode && overlay) { overlay.style.display = (qtyInput.value.trim() === "" && overlay.textContent !== "") ? "block" : "none"; } };
-        });
+    function toggleDropdown(e) {
+        e.stopPropagation();
+        const d = document.getElementById("myDropdown");
+        d.style.display = (d.style.display === "flex") ? "none" : "flex";
     }
 
-    function setupAutocomplete(input, box, data, isItem=false, overlay=null, qtyInput=null) {
-        if(!input || !box) return;
-        const newInput = input.cloneNode(true); input.parentNode.replaceChild(newInput, input);
-        newInput.addEventListener("input", () => {
-            const val = newInput.value.trim().toLowerCase();
-            if (isItem && overlay && qtyInput) {
-                const currentVal = newInput.value.trim();
-                if (gaMode && itemStock[currentVal] !== undefined) { overlay.textContent = itemStock[currentVal]; overlay.style.display = (qtyInput.value === "") ? "block" : "none"; qtyInput.classList.add("hide-placeholder"); } 
-                else { overlay.style.display = "none"; overlay.textContent = ""; qtyInput.classList.remove("hide-placeholder"); }
+    function toggleGAMode() {
+        document.getElementById("myDropdown").style.display = "none";
+        if (!gaMode) {
+            passAction = "ga";
+            document.getElementById("passPopup").style.display = "flex";
+            document.getElementById("adminPass").focus();
+        } else {
+            updateGAUI(false);
+        }
+    }
+
+    function updateGAUI(status) {
+        gaMode = status;
+        const btnHist = document.getElementById("btnHistoryGA");
+        const gaInd = document.getElementById("gaIndicator");
+        if (gaMode) {
+            showToast("GA Mode");
+            btnHist.style.display = "block";
+            gaInd.style.display = "block"; // Tampilkan tulisan GA
+        } else {
+            showToast("User Mode");
+            btnHist.style.display = "none";
+            gaInd.style.display = "none"; // Sembunyikan tulisan GA
+            document.querySelectorAll(".stock-overlay").forEach(s => s.style.display = "none");
+            document.querySelectorAll(".qty").forEach(q => q.classList.remove("hide-placeholder"));
+        }
+        initAutocomplete();
+    }
+
+    async function fetchDataAndUpdateUI(isInitialLoad = true) {
+    const icon = document.getElementById("refreshIcon");
+    if(icon) icon.classList.add("spinning");
+    
+    try {
+        const resp = await fetch(`${scriptURL}?action=getDropdownData`);
+        const data = await resp.json();
+        
+        nameData = data.names || []; 
+        itemData = data.items || []; 
+        itemStock = data.stocks || {}; 
+        lastTransactions = data.transactions || [];
+        
+        initAutocomplete();
+        
+    } catch (e) { 
+        console.error(e);
+        showToast("❌ Sync Error"); 
+    } finally { 
+        if(icon) setTimeout(() => icon.classList.remove("spinning"), 600); 
+    }
+}
+
+function initAutocomplete() {
+    const nameInput = document.getElementById("name");
+    const nameList = document.getElementById("nameList");
+    
+    nameList.innerHTML = "";
+    nameList.style.display = "none";
+    
+    setupAutocomplete(nameInput, nameList, nameData);
+
+    document.querySelectorAll(".item-row").forEach(row => {
+        const itemInput = row.querySelector(".item");
+        const itemBox = row.querySelector(".autocomplete-list");
+        const qtyInput = row.querySelector(".qty");
+        const overlay = row.querySelector(".stock-overlay");
+        
+        itemBox.innerHTML = "";
+        itemBox.style.display = "none";
+        
+        setupAutocomplete(itemInput, itemBox, itemData, true, overlay, qtyInput);
+        
+        qtyInput.oninput = () => {
+            if (gaMode && overlay) {
+                overlay.style.display = (qtyInput.value.trim() === "" && overlay.textContent !== "") ? "block" : "none";
             }
-            if (!val) { box.style.display = "none"; return; }
-            const match = data.filter(d => { if (!d.toLowerCase().includes(val)) return false; if (isItem && !gaMode && (itemStock[d] || 0) <= 0) return false; return true; }).slice(0, 12);
-            if (!match.length) { box.style.display = "none"; return; }
-            box.innerHTML = match.map(m => `<div class="autocomplete-item">${m}</div>`).join('');
-            box.style.display = "block";
-            box.querySelectorAll(".autocomplete-item").forEach(div => { div.onclick = () => { newInput.value = div.textContent; box.style.display = "none"; if (isItem && overlay && gaMode && qtyInput) { overlay.textContent = itemStock[div.textContent] || 0; overlay.style.display = (qtyInput.value === "") ? "block" : "none"; qtyInput.classList.add("hide-placeholder"); } }; });
+        };
+    });
+}
+
+function setupAutocomplete(input, box, data, isItem=false, overlay=null, qtyInput=null) {
+    if(!input || !box) return;
+
+    const newInput = input.cloneNode(true);
+    input.parentNode.replaceChild(newInput, input);
+
+    newInput.addEventListener("input", () => {
+        const val = newInput.value.trim().toLowerCase();
+        
+        if (isItem && overlay && qtyInput) {
+            const currentVal = newInput.value.trim();
+            if (gaMode && itemStock[currentVal] !== undefined) {
+                overlay.textContent = itemStock[currentVal];
+                overlay.style.display = (qtyInput.value === "") ? "block" : "none";
+                qtyInput.classList.add("hide-placeholder");
+            } else {
+                overlay.style.display = "none";
+                overlay.textContent = "";
+                qtyInput.classList.remove("hide-placeholder");
+            }
+        }
+
+        if (!val) { box.style.display = "none"; return; }
+        
+        const match = data.filter(d => {
+            if (!d.toLowerCase().includes(val)) return false;
+            if (isItem && !gaMode && (itemStock[d] || 0) <= 0) return false;
+            return true;
+        }).slice(0, 12);
+        
+        if (!match.length) { box.style.display = "none"; return; }
+        
+        box.innerHTML = match.map(m => `<div class="autocomplete-item">${m}</div>`).join('');
+        box.style.display = "block";
+        
+        box.querySelectorAll(".autocomplete-item").forEach(div => {
+            div.onclick = () => { 
+                newInput.value = div.textContent; 
+                box.style.display = "none"; 
+                if (isItem && overlay && gaMode && qtyInput) {
+                    overlay.textContent = itemStock[div.textContent] || 0;
+                    overlay.style.display = (qtyInput.value === "") ? "block" : "none";
+                    qtyInput.classList.add("hide-placeholder");
+                }
+            };
         });
-    }
+    });
+}
 
     async function handleSubmit(mode) {
         const name = document.getElementById("name").value.trim();
         if (!nameData.includes(name)) return showToast("⚠️ Pilih Nama!");
-        const items = [...document.querySelectorAll(".item-row")].map(row => ({ item: row.querySelector(".item").value.trim(), qty: parseInt(row.querySelector(".qty").value), desc: row.querySelector(".desc").value.trim() })).filter(it => it.item && it.qty);
+        const items = [...document.querySelectorAll(".item-row")].map(row => ({
+            item: row.querySelector(".item").value.trim(),
+            qty: parseInt(row.querySelector(".qty").value),
+            desc: row.querySelector(".desc").value.trim()
+        })).filter(it => it.item && it.qty);
         if (!items.length) return showToast("⚠️ Isi Item!");
         if (mode === "out") { for (let it of items) { if (!gaMode && (itemStock[it.item] || 0) < it.qty) return showToast(`⚠️ Stok ${it.item} Kurang!`); } }
         document.getElementById("loaderOverlay").style.display = "flex";
-        const body = new URLSearchParams(); body.append('name', name); body.append('mode', mode); body.append('items', JSON.stringify(items)); body.append('date', new Date().toLocaleDateString('id-ID'));
-        try { const resp = await fetch(scriptURL, { method: 'POST', body: body }); const res = await resp.json(); if (res.result === "success") { showSuccessPopup(mode, items); document.getElementById("myForm").reset(); fetchDataAndUpdateUI(false); } else { showToast("❌ " + res.error); } } 
-        catch (e) { showToast("❌ Connection Lost"); } finally { document.getElementById("loaderOverlay").style.display = "none"; }
+        const body = new URLSearchParams();
+        body.append('name', name); body.append('mode', mode); body.append('items', JSON.stringify(items));
+        body.append('date', new Date().toLocaleDateString('id-ID'));
+        try {
+            const resp = await fetch(scriptURL, { method: 'POST', body: body });
+            const res = await resp.json();
+            if (res.result === "success") { showSuccessPopup(mode, items); document.getElementById("myForm").reset(); fetchDataAndUpdateUI(false); }
+            else { showToast("❌ " + res.error); }
+        } catch (e) { showToast("❌ Connection Lost"); }
+        finally { document.getElementById("loaderOverlay").style.display = "none"; }
     }
 
     document.addEventListener("mousedown", startPress); document.addEventListener("touchstart", startPress);
@@ -278,9 +381,37 @@
     function showToast(m) { const t = document.getElementById("popupToast"); t.textContent = m; t.style.display = "block"; setTimeout(() => t.style.display="none", 2500); }
     function showSuccessPopup(m, its) { document.getElementById("successMode").textContent = m.toUpperCase(); document.getElementById("successItems").innerHTML = its.map(i => `• ${i.item} = ${i.qty}`).join('<br>'); document.getElementById("successPopup").style.display = "flex"; }
     function closeSuccessPopup() { document.getElementById("successPopup").style.display = "none"; }
-    function toggleHistoryPopup(event) { if (event) event.stopPropagation(); document.getElementById("myDropdown").style.display = "none"; const p = document.getElementById("historyPopup"); const isVisible = p.style.display === "block"; if (!isVisible) { p.style.display = "block"; document.getElementById("historyList").innerHTML = lastTransactions.map(t => `<div style="font-size:0.8rem; border-bottom:1px solid #eee; padding:8px; background:#f3f4f6; margin-bottom:5px; border-radius:5px;"><b>${t[0]}</b> <span style="color:${t[1]==='in'?'#10b981':'#ef4444'}">${t[1].toUpperCase()}</span> ${t[2]}</div>`).join(''); } else { p.style.display = "none"; } }
-    document.addEventListener("click", function(event) { const historyPopup = document.getElementById("historyPopup"); const dropdown = document.getElementById("myDropdown"); if (historyPopup.style.display === "block" && !historyPopup.contains(event.target)) { historyPopup.style.display = "none"; } if (dropdown.style.display === "flex" && !event.target.closest("#hamburgerBtn")) { dropdown.style.display = "none"; } });
-    function checkPassword() { if (document.getElementById("adminPass").value === "azza") { document.getElementById("passPopup").style.display = "none"; document.getElementById("adminPass").value = ""; if (passAction === "in") handleSubmit("in"); else if (passAction === "ga") { updateGAUI(true); } } else showToast("❌ Salah!"); }
+    
+    function toggleHistoryPopup(event) { 
+        if (event) event.stopPropagation(); 
+        document.getElementById("myDropdown").style.display = "none";
+        const p = document.getElementById("historyPopup"); 
+        const isVisible = p.style.display === "block"; 
+        if (!isVisible) { 
+            p.style.display = "block"; 
+            document.getElementById("historyList").innerHTML = lastTransactions.map(t => `<div style="font-size:0.8rem; border-bottom:1px solid #eee; padding:8px; background:#f3f4f6; margin-bottom:5px; border-radius:5px;"><b>${t[0]}</b> <span style="color:${t[1]==='in'?'#10b981':'#ef4444'}">${t[1].toUpperCase()}</span> ${t[2]}</div>`).join(''); 
+        } else { 
+            p.style.display = "none"; 
+        } 
+    }
+    
+    document.addEventListener("click", function(event) { 
+        const historyPopup = document.getElementById("historyPopup"); 
+        const dropdown = document.getElementById("myDropdown");
+        if (historyPopup.style.display === "block" && !historyPopup.contains(event.target)) { historyPopup.style.display = "none"; } 
+        if (dropdown.style.display === "flex" && !event.target.closest("#hamburgerBtn")) { dropdown.style.display = "none"; }
+    });
+
+    function checkPassword() { 
+        if (document.getElementById("adminPass").value === "azza") { 
+            document.getElementById("passPopup").style.display = "none"; 
+            document.getElementById("adminPass").value = ""; 
+            if (passAction === "in") handleSubmit("in");
+            else if (passAction === "ga") {
+                updateGAUI(true);
+            }
+        } else showToast("❌ Salah!"); 
+    }
     function closePassPopup() { document.getElementById("passPopup").style.display = "none"; document.getElementById("adminPass").value = ""; }
 
     document.getElementById("addRow").onclick = () => {
@@ -289,8 +420,10 @@
         const firstRow = container.children[0];
         const clone = firstRow.cloneNode(true);
         clone.querySelectorAll("input, textarea").forEach(i => { i.value = ""; i.style.height = "42px"; });
-        const o = clone.querySelector(".stock-overlay"); if(o) o.style.display = "none";
-        const q = clone.querySelector(".qty"); if(q) q.classList.remove("hide-placeholder");
+        const o = clone.querySelector(".stock-overlay");
+        if(o) o.style.display = "none";
+        const q = clone.querySelector(".qty");
+        if(q) q.classList.remove("hide-placeholder");
         container.appendChild(clone); initAutocomplete();
     };
     document.addEventListener("click", e => { if (e.target.classList.contains("delete-row")) e.target.closest(".item-row").remove(); });
