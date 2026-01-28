@@ -225,12 +225,23 @@
     </form>
 </div>
 
+<div id="confirmPopup" class="popup-overlay">
+    <div class="popup-box" style="border-color: #facc15;">
+        <div style="background: #facc15; font-weight: 700; padding: 4px 16px; border-radius: 20px; margin-bottom: 15px; display: inline-block; color: #333;">KONFIRMASI</div>
+        <div id="confirmItems" style="text-align:left; margin-bottom:20px; font-size: 1rem; color: #333; max-height: 220px; overflow-y: auto; border: 1px dashed #1877f2; padding: 10px; border-radius: 8px; background: #f9f9f9;"></div>
+        <div class="btn-group" style="gap:10px;">
+            <button class="modal-btn" id="finalSubmitBtn" style="background: #10b981;">Ya, Simpan</button>
+            <button class="modal-btn" onclick="closeConfirmPopup()" style="background: #ef4444;">Batal</button>
+        </div>
+    </div>
+</div>
+
 <div id="successPopup" class="popup-overlay"><div class="popup-box"><div id="successMode"></div><div id="successItems" style="text-align:left; margin-bottom:20px; font-size: 0.9rem;"></div><button class="modal-btn" onclick="closeSuccessPopup()">Close</button></div></div>
 <div id="descPopup" class="popup-overlay"><div class="popup-box" style="max-width:350px; width:90%; padding: 25px 20px 20px 20px;"><textarea id="descPopupInput" placeholder="Ketik catatan di sini..."></textarea><button class="modal-btn" onclick="closeDescPopup()">Save & Close</button></div></div>
 <div id="passPopup" class="popup-overlay"><div class="popup-box" style="width:92%;"><input type="password" id="adminPass" placeholder="Admin Password" style="border:1px solid #1877f2; margin-bottom:15px; border-radius:12px; height:50px;"><div class="btn-group" style="gap:15px;"><button class="modal-btn" onclick="checkPassword()">OK</button><button class="modal-btn" onclick="closePassPopup()" style="background:#595959;">Batal</button></div></div></div>
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbzEbFldTMPfQrT1ufrG8KXgbw_QsoFTk82aWSAWYS7X37dDP4qL37avyXUmpeKj6TLP/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzNzaOwIeHkxlp9wdeHDlCLTfqbXlS-A6yzC8c-m4KDIzT-JlBLK_5QqBc6lHXmK41GSQ/exec';
     let nameData = [], itemData = [], itemStock = {}, lastTransactions = [], gaMode = false, activeTextarea = null, longPressTimer, passAction = "";
 
     function toggleDropdown(e) {
@@ -353,10 +364,7 @@
     }
 
     async function handleSubmit(mode) {
-        const btnIn = document.getElementById("btnIn");
-        const btnOut = document.getElementById("btnOut");
         const name = document.getElementById("name").value.trim();
-        
         if (!nameData.includes(name)) return showToast("⚠️ Pilih Nama!");
         
         const items = [...document.querySelectorAll(".item-row")].map(row => ({
@@ -367,7 +375,6 @@
 
         if (!items.length) return showToast("⚠️ Isi Item!");
 
-        // Validasi Stok di Sisi HTML
         if (mode === "out" && !gaMode) { 
             for (let it of items) { 
                 if ((itemStock[it.item] || 0) < it.qty) 
@@ -375,6 +382,28 @@
             } 
         }
 
+        // Tampilkan Modal Konfirmasi
+        const confirmPopup = document.getElementById("confirmPopup");
+        const confirmItems = document.getElementById("confirmItems");
+        const finalSubmitBtn = document.getElementById("finalSubmitBtn");
+
+        const modeLabel = mode === 'in' ? '<span style="color:#10b981">IN (Masuk)</span>' : '<span style="color:#ef4444">OUT (Keluar)</span>';
+        
+        confirmItems.innerHTML = `<p style='margin:0 0 12px 0; border-bottom:1px solid #ddd; padding-bottom:5px;'>Mode: <b>${modeLabel}</b></p>` + 
+                                 items.map(i => `• <b>${i.item}</b><br><span style="margin-left:12px; font-size:0.9rem;">Jml: ${i.qty} ${i.desc ? '<i>('+i.desc+')</i>' : ''}</span>`).join('<br><br>');
+        
+        confirmPopup.style.display = "flex";
+
+        finalSubmitBtn.onclick = () => {
+            confirmPopup.style.display = "none";
+            executeFinalSubmit(mode, name, items);
+        };
+    }
+
+    async function executeFinalSubmit(mode, name, items) {
+        const btnIn = document.getElementById("btnIn");
+        const btnOut = document.getElementById("btnOut");
+        
         document.getElementById("loaderOverlay").style.display = "flex";
         btnIn.disabled = true;
         btnOut.disabled = true;
@@ -404,7 +433,8 @@
         }
     }
 
-    // Event Listeners Long Press Notes
+    function closeConfirmPopup() { document.getElementById("confirmPopup").style.display = "none"; }
+
     document.addEventListener("mousedown", startPress); document.addEventListener("touchstart", startPress);
     document.addEventListener("mouseup", cancelPress); document.addEventListener("touchend", cancelPress);
     function startPress(e) { if (e.target.classList.contains("desc")) { activeTextarea = e.target; longPressTimer = setTimeout(() => { const popupInput = document.getElementById("descPopupInput"); popupInput.value = activeTextarea.value; document.getElementById("descPopup").style.display = "flex"; setTimeout(() => { popupInput.focus(); popupInput.setSelectionRange(popupInput.value.length, popupInput.value.length); }, 100); }, 600); } }
@@ -419,8 +449,7 @@
         if (event) event.stopPropagation(); 
         document.getElementById("myDropdown").style.display = "none";
         const p = document.getElementById("historyPopup"); 
-        const isVisible = p.style.display === "block"; 
-        if (!isVisible) { 
+        if (p.style.display === "none" || p.style.display === "") { 
             p.style.display = "block"; 
             document.getElementById("historyList").innerHTML = lastTransactions.map(t => `
                 <div style="font-size:0.8rem; border-bottom:1px solid #eee; padding:8px; background:#f3f4f6; margin-bottom:5px; border-radius:5px;">
@@ -472,4 +501,3 @@
 </script>
 </body>
 </html>
-
