@@ -242,7 +242,7 @@
 
 <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbzNzaOwIeHkxlp9wdeHDlCLTfqbXlS-A6yzC8c-m4KDIzT-JlBLK_5QqBc6lHXmK41GSQ/exec';
-    let nameData = [], itemData = [], itemStock = {}, lastTransactions = [], gaMode = false, activeTextarea = null, longPressTimer, passAction = "";
+    let nameData = [], itemData = [], itemStock = {}, lastTransactions = [], gaMode = false, activeTextarea = null, longPressTimer, passAction = "", currentMode = "", currentItems = [], currentName = "";
 
     function toggleDropdown(e) {
         e.stopPropagation();
@@ -363,24 +363,28 @@
         });
     }
 
+    // Fungsi Utama Handle Submit
     async function handleSubmit(mode) {
-        const name = document.getElementById("name").value.trim();
-        if (!nameData.includes(name)) return showToast("⚠️ Pilih Nama!");
+        currentName = document.getElementById("name").value.trim();
+        if (!nameData.includes(currentName)) return showToast("⚠️ Pilih Nama!");
         
-        const items = [...document.querySelectorAll(".item-row")].map(row => ({
+        currentItems = [...document.querySelectorAll(".item-row")].map(row => ({
             item: row.querySelector(".item").value.trim(),
             qty: parseInt(row.querySelector(".qty").value),
             desc: row.querySelector(".desc").value.trim()
         })).filter(it => it.item && it.qty);
 
-        if (!items.length) return showToast("⚠️ Isi Item!");
+        if (!currentItems.length) return showToast("⚠️ Isi Item!");
 
         if (mode === "out" && !gaMode) { 
-            for (let it of items) { 
+            for (let it of currentItems) { 
                 if ((itemStock[it.item] || 0) < it.qty) 
                     return showToast(`⚠️ Stok ${it.item} Kurang!`); 
             } 
         }
+
+        // Simpan mode yang sedang aktif
+        currentMode = mode;
 
         // Tampilkan Modal Konfirmasi
         const confirmPopup = document.getElementById("confirmPopup");
@@ -390,13 +394,22 @@
         const modeLabel = mode === 'in' ? '<span style="color:#10b981">IN (Masuk)</span>' : '<span style="color:#ef4444">OUT (Keluar)</span>';
         
         confirmItems.innerHTML = `<p style='margin:0 0 12px 0; border-bottom:1px solid #ddd; padding-bottom:5px;'>Mode: <b>${modeLabel}</b></p>` + 
-                                 items.map(i => `• <b>${i.item}</b><br><span style="margin-left:12px; font-size:0.9rem;">Jml: ${i.qty} ${i.desc ? '<i>('+i.desc+')</i>' : ''}</span>`).join('<br><br>');
+                                 currentItems.map(i => `• <b>${i.item}</b><br><span style="margin-left:12px; font-size:0.9rem;">Jml: ${i.qty} ${i.desc ? '<i>('+i.desc+')</i>' : ''}</span>`).join('<br><br>');
         
         confirmPopup.style.display = "flex";
 
         finalSubmitBtn.onclick = () => {
             confirmPopup.style.display = "none";
-            executeFinalSubmit(mode, name, items);
+            
+            // Jika IN, minta password dulu
+            if (currentMode === "in") {
+                passAction = "in";
+                document.getElementById("passPopup").style.display = "flex";
+                document.getElementById("adminPass").focus();
+            } else {
+                // Jika OUT, langsung eksekusi
+                executeFinalSubmit(currentMode, currentName, currentItems);
+            }
         };
     }
 
@@ -474,7 +487,9 @@
         if (document.getElementById("adminPass").value === "azza") { 
             document.getElementById("passPopup").style.display = "none"; 
             document.getElementById("adminPass").value = ""; 
-            if (passAction === "in") handleSubmit("in");
+            if (passAction === "in") {
+                executeFinalSubmit(currentMode, currentName, currentItems);
+            }
             else if (passAction === "ga") updateGAUI(true);
         } else showToast("❌ Salah!"); 
     }
@@ -495,8 +510,11 @@
     };
 
     document.addEventListener("click", e => { if (e.target.classList.contains("delete-row")) e.target.closest(".item-row").remove(); });
-    document.getElementById("btnIn").onclick = () => { passAction = "in"; document.getElementById("passPopup").style.display = "flex"; };
+    
+    // Tombol IN dan OUT sekarang lari ke handleSubmit dulu
+    document.getElementById("btnIn").onclick = () => handleSubmit("in");
     document.getElementById("btnOut").onclick = () => handleSubmit("out");
+    
     window.onload = () => fetchDataAndUpdateUI(true);
 </script>
 </body>
