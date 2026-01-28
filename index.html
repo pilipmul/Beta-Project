@@ -419,13 +419,14 @@
         if (event) event.stopPropagation(); 
         document.getElementById("myDropdown").style.display = "none";
         const p = document.getElementById("historyPopup"); 
-        if (p.style.display === "none" || p.style.display === "") { 
+        const isVisible = p.style.display === "block"; 
+        if (!isVisible) { 
             p.style.display = "block"; 
             document.getElementById("historyList").innerHTML = lastTransactions.map(t => `
                 <div style="font-size:0.8rem; border-bottom:1px solid #eee; padding:8px; background:#f3f4f6; margin-bottom:5px; border-radius:5px;">
                     <b style="color:#1877f2;">${t[0]}</b> 
                     <span style="color:${t[1]==='in'?'#10b981':'#ef4444'}">${t[1].toUpperCase()}</span> 
-                    <b>(${t[2]})</b>
+                    <b>${t[2]}</b>
                 </div>
             `).join(''); 
         } else { 
@@ -471,3 +472,4 @@
 </script>
 </body>
 </html>
+
