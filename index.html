@@ -171,17 +171,47 @@
         });
     }
 
-    function setupAutocomplete(input, box, data, isItem=false, overlay=null, qtyInput=null) {
-        const newInput = input.cloneNode(true); input.parentNode.replaceChild(newInput, input);
+function setupAutocomplete(input, box, data, isItem=false, overlay=null, qtyInput=null) {
+        const newInput = input.cloneNode(true); 
+        input.parentNode.replaceChild(newInput, input);
+
+        // Fungsi untuk mengatur visibilitas angka stok merah
+        const updateOverlay = () => {
+            if (isItem && gaMode && itemStock[newInput.value.trim()] !== undefined) {
+                overlay.textContent = itemStock[newInput.value.trim()];
+                // Jika Qty kosong, tampilkan stok. Jika ada isinya, sembunyikan.
+                overlay.style.display = qtyInput.value ? "none" : "block";
+                qtyInput.classList.add("hide-placeholder");
+            } else if (overlay) {
+                overlay.style.display = "none";
+                qtyInput.classList.remove("hide-placeholder");
+            }
+        };
+
+        // Pantau input di kolom Item
         newInput.addEventListener("input", () => {
             const val = newInput.value.trim().toLowerCase();
-            if (isItem && gaMode && itemStock[newInput.value.trim()]) { overlay.textContent = itemStock[newInput.value.trim()]; overlay.style.display = qtyInput.value ? "none" : "block"; qtyInput.classList.add("hide-placeholder"); }
+            updateOverlay(); // Jalankan pengecekan stok
+
             if (!val) { box.style.display = "none"; return; }
             const match = data.filter(d => d.toLowerCase().includes(val) && (isItem && !gaMode ? (itemStock[d] || 0) > 0 : true)).slice(0, 10);
+            
             box.innerHTML = match.map(m => `<div class="autocomplete-item">${m}</div>`).join('');
             box.style.display = match.length ? "block" : "none";
-            box.querySelectorAll(".autocomplete-item").forEach(div => { div.onclick = () => { newInput.value = div.textContent; box.style.display = "none"; if(isItem && gaMode){ overlay.textContent = itemStock[div.textContent]; overlay.style.display = qtyInput.value ? "none" : "block"; qtyInput.classList.add("hide-placeholder"); } }; });
+            
+            box.querySelectorAll(".autocomplete-item").forEach(div => { 
+                div.onclick = () => { 
+                    newInput.value = div.textContent; 
+                    box.style.display = "none"; 
+                    updateOverlay(); // Jalankan pengecekan stok setelah pilih item
+                }; 
+            });
         });
+
+        // TAMBAHAN: Pantau input di kolom Qty agar angka merah langsung hilang saat diisi
+        if (isItem && qtyInput) {
+            qtyInput.addEventListener("input", updateOverlay);
+        }
     }
 
     async function handleSubmit(mode) {
@@ -248,4 +278,5 @@
 </script>
 </body>
 </html>
+
 
