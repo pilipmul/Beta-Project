@@ -115,7 +115,7 @@
                     <input type="number" class="qty" min="1" placeholder="Qty" required>
                 </div>
                 <div style="position: relative;">
-                    <textarea class="desc" placeholder="Notes"></textarea>
+                    <textarea class="desc" placeholder="Notes" onmousedown="startLongPress(event, this)" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(event, this)" ontouchend="cancelLongPress()"></textarea>
                     <button type="button" class="delete-row">×</button>
                 </div>
             </div>
@@ -142,12 +142,27 @@
 </div>
 
 <div id="successPopup" class="popup-overlay"><div class="popup-box"><div id="successMode"></div><div id="successItems" style="text-align:left; margin-bottom:20px;"></div><button class="modal-btn" onclick="closeSuccessPopup()">Close</button></div></div>
-<div id="descPopup" class="popup-overlay"><div class="popup-box"><textarea id="descPopupInput" style="width:100%; height:120px; border:1px solid #1877f2; border-radius:8px; margin-bottom:10px;"></textarea><button class="modal-btn" onclick="closeDescPopup()">Save</button></div></div>
+<div id="descPopup" class="popup-overlay"><div class="popup-box"><textarea id="descPopupInput" style="width:100%; height:120px; border:1px solid #1877f2; border-radius:8px; margin-bottom:10px;"></textarea><button class="modal-btn" onclick="saveDescPopup()">Save</button></div></div>
 <div id="passPopup" class="popup-overlay"><div class="popup-box"><input type="password" id="adminPass" placeholder="Password" style="border:1px solid #1877f2; border-radius:8px; margin-bottom:15px; height:45px;"><div class="btn-group"><button class="modal-btn" onclick="checkPassword()">OK</button><button class="modal-btn" onclick="closePassPopup()" style="background:#595959;">Batal</button></div></div></div>
 
 <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbzNzaOwIeHkxlp9wdeHDlCLTfqbXlS-A6yzC8c-m4KDIzT-JlBLK_5QqBc6lHXmK41GSQ/exec';
     let nameData = [], itemData = [], itemStock = {}, lastTransactions = [], gaMode = false, activeTextarea = null, longPressTimer, passAction = "", currentMode = "", currentItems = [], currentName = "";
+
+    // Fungsi Pop-up Notes
+    function startLongPress(e, el) {
+        activeTextarea = el;
+        longPressTimer = setTimeout(() => {
+            document.getElementById("descPopupInput").value = el.value;
+            document.getElementById("descPopup").style.display = "flex";
+            document.getElementById("descPopupInput").focus();
+        }, 600);
+    }
+    function cancelLongPress() { clearTimeout(longPressTimer); }
+    function saveDescPopup() {
+        if (activeTextarea) activeTextarea.value = document.getElementById("descPopupInput").value;
+        document.getElementById("descPopup").style.display = "none";
+    }
 
     function toggleDropdown(e) { e.stopPropagation(); const d = document.getElementById("myDropdown"); d.style.display = (d.style.display === "flex") ? "none" : "flex"; }
     function toggleGAMode() { document.getElementById("myDropdown").style.display = "none"; if (!gaMode) { passAction = "ga"; document.getElementById("passPopup").style.display = "flex"; document.getElementById("adminPass").focus(); } else { updateGAUI(false); } }
@@ -175,11 +190,9 @@ function setupAutocomplete(input, box, data, isItem=false, overlay=null, qtyInpu
         const newInput = input.cloneNode(true); 
         input.parentNode.replaceChild(newInput, input);
 
-        // Fungsi untuk mengatur visibilitas angka stok merah
         const updateOverlay = () => {
             if (isItem && gaMode && itemStock[newInput.value.trim()] !== undefined) {
                 overlay.textContent = itemStock[newInput.value.trim()];
-                // Jika Qty kosong, tampilkan stok. Jika ada isinya, sembunyikan.
                 overlay.style.display = qtyInput.value ? "none" : "block";
                 qtyInput.classList.add("hide-placeholder");
             } else if (overlay) {
@@ -188,10 +201,9 @@ function setupAutocomplete(input, box, data, isItem=false, overlay=null, qtyInpu
             }
         };
 
-        // Pantau input di kolom Item
         newInput.addEventListener("input", () => {
             const val = newInput.value.trim().toLowerCase();
-            updateOverlay(); // Jalankan pengecekan stok
+            updateOverlay(); 
 
             if (!val) { box.style.display = "none"; return; }
             const match = data.filter(d => d.toLowerCase().includes(val) && (isItem && !gaMode ? (itemStock[d] || 0) > 0 : true)).slice(0, 10);
@@ -203,12 +215,11 @@ function setupAutocomplete(input, box, data, isItem=false, overlay=null, qtyInpu
                 div.onclick = () => { 
                     newInput.value = div.textContent; 
                     box.style.display = "none"; 
-                    updateOverlay(); // Jalankan pengecekan stok setelah pilih item
+                    updateOverlay(); 
                 }; 
             });
         });
 
-        // TAMBAHAN: Pantau input di kolom Qty agar angka merah langsung hilang saat diisi
         if (isItem && qtyInput) {
             qtyInput.addEventListener("input", updateOverlay);
         }
@@ -263,6 +274,15 @@ function setupAutocomplete(input, box, data, isItem=false, overlay=null, qtyInpu
         const clone = container.children[0].cloneNode(true);
         clone.querySelectorAll("input, textarea").forEach(i => i.value = "");
         clone.querySelector(".stock-overlay").style.display = "none";
+        
+        // Pasang ulang listener longpress untuk baris baru
+        const tx = clone.querySelector("textarea.desc");
+        tx.onmousedown = (e) => startLongPress(e, tx);
+        tx.onmouseup = cancelLongPress;
+        tx.onmouseleave = cancelLongPress;
+        tx.ontouchstart = (e) => startLongPress(e, tx);
+        tx.ontouchend = cancelLongPress;
+
         container.appendChild(clone); initAutocomplete();
     };
 
@@ -278,5 +298,3 @@ function setupAutocomplete(input, box, data, isItem=false, overlay=null, qtyInpu
 </script>
 </body>
 </html>
-
-
