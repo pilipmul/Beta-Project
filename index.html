@@ -27,9 +27,9 @@
         input, textarea { width: 100%; padding: 10px; border: none; font-size: 1rem; background-color: transparent; text-align: center; height: 42px; line-height: 22px; display: block; resize: none; }
         input:focus, textarea:focus { outline: none; }
 
-        /* Running Text untuk Item */
+        /* Running Text hanya jika input TIDAK kosong dan TIDAK sedang fokus */
         input.item { overflow: hidden; text-overflow: clip; white-space: nowrap; }
-        input.item:not(:focus) { animation: marquee 10s linear infinite; }
+        input.item:not(:placeholder-shown):not(:focus) { animation: marquee 10s linear infinite; }
         input.item:focus { animation: none; text-align: center; text-indent: 0; }
 
         @keyframes marquee {
@@ -263,7 +263,6 @@
         clone.querySelector(".stock-overlay").style.display = "none";
         clone.querySelector(".autocomplete-list").style.display = "none";
         
-        // Pasang listener longpress baris baru
         const tx = clone.querySelector("textarea.desc");
         tx.onmousedown = (e) => startLongPress(e, tx);
         tx.onmouseup = cancelLongPress;
@@ -272,7 +271,7 @@
         tx.ontouchend = cancelLongPress;
 
         container.appendChild(clone);
-        initAutocomplete(); // Refresh listener autocomplete
+        initAutocomplete();
     };
 
     document.addEventListener("click", e => { 
