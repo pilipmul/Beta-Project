@@ -24,7 +24,7 @@
         #titleBtn { width: 100%; max-width: 280px; transition: opacity 0.2s; user-select: none; -webkit-user-drag: none; }
         #nameWrapper { position: relative; padding-top: 7px; border-top: 1px solid #1877f2; padding-bottom: 7px; border-bottom: 1px solid #1877f2; }
         
-        input, textarea { width: 100%; padding: 10px; border: none; font-size: 1rem; background-color: transparent; text-align: center; height: 42px; line-height: 22px; display: block; }
+        input, textarea { width: 100%; padding: 10px; border: none; font-size: 1rem; background-color: transparent; text-align: center; height: 42px; line-height: 22px; display: block; resize: none; }
         input:focus, textarea:focus { outline: none; }
 
         .row-3col { display: grid; grid-template-columns: 40% 20% 40%; gap: 0; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #1877f2; padding-bottom: 10px; padding-top: 5px; position: relative; }
@@ -35,7 +35,7 @@
         input.qty::-webkit-outer-spin-button, input.qty::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input.qty.hide-placeholder::placeholder { color: transparent; }
         
-        textarea.desc { resize: none; overflow-y: hidden; padding-top: 10px; padding-right: 25px; }
+        textarea.desc { overflow-y: hidden; padding-top: 10px; padding-right: 25px; }
         .btn-group { display: flex; gap: 8px; margin-top: 10px; justify-content: center; position: relative; align-items: center; }
         .add-row { background-color: transparent; border: none; width: auto; padding: 8px; flex: none; display: flex; justify-content: center; align-items: center; }
         
@@ -142,14 +142,13 @@
 </div>
 
 <div id="successPopup" class="popup-overlay"><div class="popup-box"><div id="successMode"></div><div id="successItems" style="text-align:left; margin-bottom:20px;"></div><button class="modal-btn" onclick="closeSuccessPopup()">Close</button></div></div>
-<div id="descPopup" class="popup-overlay"><div class="popup-box"><textarea id="descPopupInput" style="width:100%; height:120px; border:1px solid #1877f2; border-radius:8px; margin-bottom:10px;"></textarea><button class="modal-btn" onclick="saveDescPopup()">Save</button></div></div>
+<div id="descPopup" class="popup-overlay"><div class="popup-box"><textarea id="descPopupInput" style="width:100%; height:120px; border:1px solid #1877f2; border-radius:8px; margin-bottom:10px; text-align: left;"></textarea><button class="modal-btn" onclick="saveDescPopup()">Save</button></div></div>
 <div id="passPopup" class="popup-overlay"><div class="popup-box"><input type="password" id="adminPass" placeholder="Password" style="border:1px solid #1877f2; border-radius:8px; margin-bottom:15px; height:45px;"><div class="btn-group"><button class="modal-btn" onclick="checkPassword()">OK</button><button class="modal-btn" onclick="closePassPopup()" style="background:#595959;">Batal</button></div></div></div>
 
 <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbzNzaOwIeHkxlp9wdeHDlCLTfqbXlS-A6yzC8c-m4KDIzT-JlBLK_5QqBc6lHXmK41GSQ/exec';
     let nameData = [], itemData = [], itemStock = {}, lastTransactions = [], gaMode = false, activeTextarea = null, longPressTimer, passAction = "", currentMode = "", currentItems = [], currentName = "";
 
-    // Fungsi Pop-up Notes
     function startLongPress(e, el) {
         activeTextarea = el;
         longPressTimer = setTimeout(() => {
@@ -186,7 +185,7 @@
         });
     }
 
-function setupAutocomplete(input, box, data, isItem=false, overlay=null, qtyInput=null) {
+    function setupAutocomplete(input, box, data, isItem=false, overlay=null, qtyInput=null) {
         const newInput = input.cloneNode(true); 
         input.parentNode.replaceChild(newInput, input);
 
@@ -275,7 +274,6 @@ function setupAutocomplete(input, box, data, isItem=false, overlay=null, qtyInpu
         clone.querySelectorAll("input, textarea").forEach(i => i.value = "");
         clone.querySelector(".stock-overlay").style.display = "none";
         
-        // Pasang ulang listener longpress untuk baris baru
         const tx = clone.querySelector("textarea.desc");
         tx.onmousedown = (e) => startLongPress(e, tx);
         tx.onmouseup = cancelLongPress;
