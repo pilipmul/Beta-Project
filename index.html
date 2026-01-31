@@ -27,10 +27,10 @@
         input, textarea { width: 100%; padding: 10px; border: none; font-size: 1rem; background-color: transparent; text-align: center; height: 42px; line-height: 22px; display: block; resize: none; }
         input:focus, textarea:focus { outline: none; }
 
-        /* Style khusus untuk Item agar bisa Running Text saat tidak fokus */
-        input.item { overflow: hidden; text-overflow: clip; white-space: nowrap; transition: all 0.3s; }
+        /* Running Text untuk Item */
+        input.item { overflow: hidden; text-overflow: clip; white-space: nowrap; }
         input.item:not(:focus) { animation: marquee 10s linear infinite; }
-        input.item:focus { animation: none; text-align: center; }
+        input.item:focus { animation: none; text-align: center; text-indent: 0; }
 
         @keyframes marquee {
             0% { text-indent: 100%; }
@@ -54,7 +54,7 @@
         button:disabled { background-color: #ccc; cursor: not-allowed; }
         button.in, button.out { background-color: #595959; }
         
-        .autocomplete-list { position: absolute; background: #fff; border: 1px solid #ccc; border-radius: 6px; z-index: 2000; max-height: 180px; overflow-y: auto; width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: left; display: none; }
+        .autocomplete-list { position: absolute; background: #fff; border: 1px solid #ccc; border-radius: 6px; z-index: 2000; max-height: 180px; overflow-y: auto; width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: left; display: none; top: 42px; left: 0; }
         .autocomplete-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; }
         .autocomplete-item:hover { background: #1877f2; color: #fff; }
         
@@ -116,7 +116,7 @@
         </div>
         <div id="itemContainer">
             <div class="row-3col item-row">
-                <div style="position: relative; overflow: hidden;">
+                <div style="position: relative;">
                     <input type="text" class="item" placeholder="Item" autocomplete="off" required>
                     <div class="autocomplete-list"></div>
                 </div>
@@ -140,17 +140,7 @@
     </form>
 </div>
 
-<div id="confirmPopup" class="popup-overlay">
-    <div class="popup-box" style="border: 2px solid #1877f2;">
-        <h3 id="confirmTitle" style="margin-top:0; color:#1877f2; text-transform: uppercase;"></h3>
-        <div id="confirmItems" style="text-align:left; margin-bottom:25px; font-size: 1.05rem; color: #333; line-height:1.6;"></div>
-        <div class="btn-group" style="gap:15px;">
-            <button class="modal-btn" id="finalSubmitBtn" style="background: #1877f2;">POST</button>
-            <button class="modal-btn" onclick="closeConfirmPopup()" style="background: #595959;">CANCEL</button>
-        </div>
-    </div>
-</div>
-
+<div id="confirmPopup" class="popup-overlay"><div class="popup-box"><h3 id="confirmTitle" style="color:#1877f2;"></h3><div id="confirmItems" style="text-align:left; margin-bottom:25px;"></div><div class="btn-group"><button class="modal-btn" id="finalSubmitBtn">POST</button><button class="modal-btn" onclick="closeConfirmPopup()" style="background:#595959;">CANCEL</button></div></div></div>
 <div id="successPopup" class="popup-overlay"><div class="popup-box"><div id="successMode"></div><div id="successItems" style="text-align:left; margin-bottom:20px;"></div><button class="modal-btn" onclick="closeSuccessPopup()">Close</button></div></div>
 <div id="descPopup" class="popup-overlay"><div class="popup-box"><textarea id="descPopupInput" style="width:100%; height:120px; border:1px solid #1877f2; border-radius:8px; margin-bottom:10px; text-align: left;"></textarea><button class="modal-btn" onclick="saveDescPopup()">Save</button></div></div>
 <div id="passPopup" class="popup-overlay"><div class="popup-box"><input type="password" id="adminPass" placeholder="Password" style="border:1px solid #1877f2; border-radius:8px; margin-bottom:15px; height:45px;"><div class="btn-group"><button class="modal-btn" onclick="checkPassword()">OK</button><button class="modal-btn" onclick="closePassPopup()" style="background:#595959;">Batal</button></div></div></div>
@@ -175,7 +165,7 @@
 
     function toggleDropdown(e) { e.stopPropagation(); const d = document.getElementById("myDropdown"); d.style.display = (d.style.display === "flex") ? "none" : "flex"; }
     function toggleGAMode() { document.getElementById("myDropdown").style.display = "none"; if (!gaMode) { passAction = "ga"; document.getElementById("passPopup").style.display = "flex"; document.getElementById("adminPass").focus(); } else { updateGAUI(false); } }
-    function updateGAUI(status) { gaMode = status; document.getElementById("gaIndicator").style.display = gaMode ? "block" : "none"; document.getElementById("btnHistoryGA").style.display = gaMode ? "block" : "none"; if(!gaMode){ document.querySelectorAll(".stock-overlay").forEach(s => s.style.display = "none"); document.querySelectorAll(".qty").forEach(q => q.classList.remove("hide-placeholder")); } initAutocomplete(); }
+    function updateGAUI(status) { gaMode = status; document.getElementById("gaIndicator").style.display = gaMode ? "block" : "none"; document.getElementById("btnHistoryGA").style.display = gaMode ? "block" : "none"; initAutocomplete(); }
 
     async function fetchDataAndUpdateUI() {
         const icon = document.getElementById("refreshIcon");
@@ -196,42 +186,33 @@
     }
 
     function setupAutocomplete(input, box, data, isItem=false, overlay=null, qtyInput=null) {
-        const newInput = input.cloneNode(true); 
-        input.parentNode.replaceChild(newInput, input);
-
         const updateOverlay = () => {
-            if (isItem && gaMode && itemStock[newInput.value.trim()] !== undefined) {
-                overlay.textContent = itemStock[newInput.value.trim()];
+            if (isItem && gaMode && itemStock[input.value.trim()] !== undefined) {
+                overlay.textContent = itemStock[input.value.trim()];
                 overlay.style.display = qtyInput.value ? "none" : "block";
                 qtyInput.classList.add("hide-placeholder");
             } else if (overlay) {
                 overlay.style.display = "none";
-                qtyInput.classList.remove("hide-placeholder");
+                if(qtyInput) qtyInput.classList.remove("hide-placeholder");
             }
         };
 
-        newInput.addEventListener("input", () => {
-            const val = newInput.value.trim().toLowerCase();
-            updateOverlay(); 
-
+        input.oninput = () => {
+            const val = input.value.trim().toLowerCase();
+            updateOverlay();
             if (!val) { box.style.display = "none"; return; }
             const match = data.filter(d => d.toLowerCase().includes(val) && (isItem && !gaMode ? (itemStock[d] || 0) > 0 : true)).slice(0, 10);
-            
             box.innerHTML = match.map(m => `<div class="autocomplete-item">${m}</div>`).join('');
             box.style.display = match.length ? "block" : "none";
-            
-            box.querySelectorAll(".autocomplete-item").forEach(div => { 
-                div.onclick = () => { 
-                    newInput.value = div.textContent; 
-                    box.style.display = "none"; 
-                    updateOverlay(); 
-                }; 
+            box.querySelectorAll(".autocomplete-item").forEach(div => {
+                div.onclick = () => {
+                    input.value = div.textContent;
+                    box.style.display = "none";
+                    updateOverlay();
+                };
             });
-        });
-
-        if (isItem && qtyInput) {
-            qtyInput.addEventListener("input", updateOverlay);
-        }
+        };
+        if (qtyInput) qtyInput.oninput = updateOverlay;
     }
 
     async function handleSubmit(mode) {
@@ -243,13 +224,10 @@
             desc: row.querySelector(".desc").value.trim()
         })).filter(it => it.item && it.qty);
         if (!currentItems.length) return showToast("⚠️ Isi Item!");
-        if (mode === "out" && !gaMode) { for (let it of currentItems) { if ((itemStock[it.item] || 0) < it.qty) return showToast(`⚠️ Stok ${it.item} Kurang!`); } }
-        
         currentMode = mode;
-        document.getElementById("confirmTitle").innerText = mode;
+        document.getElementById("confirmTitle").innerText = mode.toUpperCase();
         document.getElementById("confirmItems").innerHTML = currentItems.map(i => `- ${i.item} (${i.qty})`).join('<br>');
         document.getElementById("confirmPopup").style.display = "flex";
-
         document.getElementById("finalSubmitBtn").onclick = () => {
             document.getElementById("confirmPopup").style.display = "none";
             if (mode === "in") { passAction = "in"; document.getElementById("passPopup").style.display = "flex"; }
@@ -283,7 +261,9 @@
         const clone = container.children[0].cloneNode(true);
         clone.querySelectorAll("input, textarea").forEach(i => i.value = "");
         clone.querySelector(".stock-overlay").style.display = "none";
+        clone.querySelector(".autocomplete-list").style.display = "none";
         
+        // Pasang listener longpress baris baru
         const tx = clone.querySelector("textarea.desc");
         tx.onmousedown = (e) => startLongPress(e, tx);
         tx.onmouseup = cancelLongPress;
@@ -291,11 +271,13 @@
         tx.ontouchstart = (e) => startLongPress(e, tx);
         tx.ontouchend = cancelLongPress;
 
-        container.appendChild(clone); initAutocomplete();
+        container.appendChild(clone);
+        initAutocomplete(); // Refresh listener autocomplete
     };
 
     document.addEventListener("click", e => { 
         if (e.target.classList.contains("delete-row")) e.target.closest(".item-row").remove();
+        if (!e.target.closest(".autocomplete-list") && !e.target.closest("input")) document.querySelectorAll(".autocomplete-list").forEach(l => l.style.display = "none");
         if (!e.target.closest("#myDropdown") && !e.target.closest("#hamburgerBtn")) document.getElementById("myDropdown").style.display = "none";
         if (!e.target.closest("#historyPopup") && !e.target.closest("#btnHistoryGA")) document.getElementById("historyPopup").style.display = "none";
     });
