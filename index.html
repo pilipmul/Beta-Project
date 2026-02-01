@@ -36,14 +36,12 @@
             100% { text-indent: -100%; }
         }
 
-        /* Tombol Clear Kecil */
         .clear-btn {
             position: absolute; right: 5px; top: 50%; transform: translateY(-50%);
             background: #eee; color: #999; border-radius: 50%; width: 20px; height: 20px;
             display: none; align-items: center; justify-content: center;
             font-size: 14px; cursor: pointer; z-index: 10; font-weight: bold;
         }
-        /* Muncul hanya saat parent fokus */
         #nameWrapper:focus-within .clear-btn, 
         .item-row div:first-child:focus-within .clear-btn { display: flex; }
 
@@ -122,14 +120,14 @@
     <form id="myForm">
         <div id="nameWrapper">
             <input type="text" id="name" placeholder="Name" autocomplete="off" required>
-            <div class="clear-btn" onclick="clearInput(this)">×</div>
+            <div class="clear-btn" onmousedown="clearInput(event, this)">×</div>
             <div id="nameList" class="autocomplete-list"></div>
         </div>
         <div id="itemContainer">
             <div class="row-3col item-row">
                 <div style="position: relative;">
                     <input type="text" class="item" placeholder="Item" autocomplete="off" required>
-                    <div class="clear-btn" onclick="clearInput(this)">×</div>
+                    <div class="clear-btn" onmousedown="clearInput(event, this)">×</div>
                     <div class="autocomplete-list"></div>
                 </div>
                 <div class="qty-wrapper">
@@ -161,11 +159,14 @@
     const scriptURL = 'https://script.google.com/macros/s/AKfycbzNzaOwIeHkxlp9wdeHDlCLTfqbXlS-A6yzC8c-m4KDIzT-JlBLK_5QqBc6lHXmK41GSQ/exec';
     let nameData = [], itemData = [], itemStock = {}, lastTransactions = [], gaMode = false, activeTextarea = null, longPressTimer, passAction = "", currentMode = "", currentItems = [], currentName = "";
 
-    function clearInput(btn) {
+    // Perbaikan: Gunakan onmousedown dan preventDefault
+    function clearInput(e, btn) {
+        e.preventDefault(); // Mencegah input kehilangan fokus sebelum teks dihapus
         const inp = btn.parentElement.querySelector('input');
         inp.value = '';
+        const list = btn.parentElement.querySelector('.autocomplete-list');
+        if(list) list.style.display = 'none';
         inp.focus();
-        initAutocomplete();
     }
 
     function startLongPress(e, el) {
