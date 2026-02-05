@@ -159,9 +159,8 @@
     const scriptURL = 'https://script.google.com/macros/s/AKfycbzNzaOwIeHkxlp9wdeHDlCLTfqbXlS-A6yzC8c-m4KDIzT-JlBLK_5QqBc6lHXmK41GSQ/exec';
     let nameData = [], itemData = [], itemStock = {}, lastTransactions = [], gaMode = false, activeTextarea = null, longPressTimer, passAction = "", currentMode = "", currentItems = [], currentName = "";
 
-    // Perbaikan: Gunakan onmousedown dan preventDefault
     function clearInput(e, btn) {
-        e.preventDefault(); // Mencegah input kehilangan fokus sebelum teks dihapus
+        e.preventDefault();
         const inp = btn.parentElement.querySelector('input');
         inp.value = '';
         const list = btn.parentElement.querySelector('.autocomplete-list');
@@ -246,7 +245,7 @@
         if (!currentItems.length) return showToast("⚠️ Isi Item!");
         currentMode = mode;
         document.getElementById("confirmTitle").innerText = mode.toUpperCase();
-        document.getElementById("confirmItems").innerHTML = currentItems.map(i => `- ${i.item} (${i.qty})`).join('<br>');
+        document.getElementById("confirmItems").innerHTML = currentItems.map(i => `- ${i.item} (<span style="color:red;">${i.qty}</span>)`).join('<br>');
         document.getElementById("confirmPopup").style.display = "flex";
         document.getElementById("finalSubmitBtn").onclick = () => {
             document.getElementById("confirmPopup").style.display = "none";
@@ -269,7 +268,7 @@
 
     function checkPassword() { if (document.getElementById("adminPass").value === "azza") { document.getElementById("passPopup").style.display = "none"; document.getElementById("adminPass").value = ""; if (passAction === "in") executeFinalSubmit(currentMode, currentName, currentItems); else if (passAction === "ga") updateGAUI(true); } else showToast("❌ Salah!"); }
     function showToast(m) { const t = document.getElementById("popupToast"); t.textContent = m; t.style.display = "block"; setTimeout(() => t.style.display="none", 2500); }
-    function showSuccessPopup(m, its) { document.getElementById("successMode").textContent = m.toUpperCase(); document.getElementById("successItems").innerHTML = its.map(i => `• ${i.item} (${i.qty})`).join('<br>'); document.getElementById("successPopup").style.display = "flex"; }
+    function showSuccessPopup(m, its) { document.getElementById("successMode").textContent = m.toUpperCase(); document.getElementById("successItems").innerHTML = its.map(i => `• ${i.item} (<span style="color:red;">${i.qty}</span>)`).join('<br>'); document.getElementById("successPopup").style.display = "flex"; }
     function closeSuccessPopup() { document.getElementById("successPopup").style.display = "none"; }
     function closeConfirmPopup() { document.getElementById("confirmPopup").style.display = "none"; }
     function closePassPopup() { document.getElementById("passPopup").style.display = "none"; }
