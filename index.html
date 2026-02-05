@@ -264,10 +264,9 @@
             if (res.result === "success") { 
                 showSuccessPopup(mode, items); 
                 document.getElementById("myForm").reset(); 
-                // Reset baris ke 1 setelah submit sukses
                 const container = document.getElementById("itemContainer");
                 while(container.children.length > 1) container.removeChild(container.lastChild);
-                document.getElementById("addRow").style.display = "flex";
+                document.getElementById("addRow").style.visibility = "visible";
                 fetchDataAndUpdateUI(); 
             }
             else { showToast(res.error); }
@@ -302,17 +301,16 @@
             container.appendChild(clone);
             initAutocomplete();
             
-            // Sembunyikan tombol jika sudah mencapai 5
-            if (container.children.length === 5) btnAdd.style.display = "none";
+            // Menggunakan visibility hidden agar layout tetap konsisten
+            if (container.children.length === 5) btnAdd.style.visibility = "hidden";
         }
     };
 
     document.addEventListener("click", e => { 
         if (e.target.classList.contains("delete-row")) {
             e.target.closest(".item-row").remove();
-            // Tampilkan kembali tombol tambah jika jumlah baris di bawah 5
             if (document.getElementById("itemContainer").children.length < 5) {
-                document.getElementById("addRow").style.display = "flex";
+                document.getElementById("addRow").style.visibility = "visible";
             }
         }
         if (!e.target.closest(".autocomplete-list") && !e.target.closest("input") && !e.target.closest(".clear-btn")) document.querySelectorAll(".autocomplete-list").forEach(l => l.style.display = "none");
