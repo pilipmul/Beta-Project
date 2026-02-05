@@ -24,7 +24,6 @@
         #titleBtn { width: 100%; max-width: 280px; transition: opacity 0.2s; user-select: none; -webkit-user-drag: none; }
         #nameWrapper { position: relative; padding-top: 2px; border-top: 1px solid #1877f2; padding-bottom: 2px; border-bottom: 1px solid #1877f2; }
         
-        /* PENGURANGAN JARAK: Padding dan line-height diperkecil */
         input, textarea { width: 100%; padding: 5px 10px; border: none; font-size: 1rem; background-color: transparent; text-align: center; height: 34px; line-height: 1.2; display: block; resize: none; }
         input:focus, textarea:focus { outline: none; }
 
@@ -46,8 +45,8 @@
         #nameWrapper:focus-within input:not(:placeholder-shown) ~ .clear-btn, 
         .item-row div:first-child:focus-within input:not(:placeholder-shown) ~ .clear-btn { display: flex; }
 
-        /* PENGURANGAN JARAK: Margin-bottom dan padding diperkecil */
-        .row-3col { display: grid; grid-template-columns: 40% 20% 40%; gap: 0; align-items: center; margin-bottom: 5px; border-bottom: 1px solid #1877f2; padding-bottom: 5px; padding-top: 2px; position: relative; }
+        /* PERBAIKAN: Padding-top disesuaikan agar baris 1 dan seterusnya konsisten */
+        .row-3col { display: grid; grid-template-columns: 40% 20% 40%; gap: 0; align-items: center; margin-bottom: 5px; border-bottom: 1px solid #1877f2; padding-bottom: 5px; padding-top: 5px; position: relative; }
         .qty-wrapper { position: relative; display: grid; place-items: center; border-left: 1px solid #1877f2; border-right: 1px solid #1877f2; height: 34px; }
 
         .stock-overlay { grid-area: 1/1; font-size: 1.1rem; font-weight: 700; color: rgba(220, 38, 38, 0.6); pointer-events: none; display: none; z-index: 1; }
