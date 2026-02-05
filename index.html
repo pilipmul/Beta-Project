@@ -42,8 +42,9 @@
             display: none; align-items: center; justify-content: center;
             font-size: 14px; cursor: pointer; z-index: 10; font-weight: bold;
         }
-        #nameWrapper:focus-within .clear-btn, 
-        .item-row div:first-child:focus-within .clear-btn { display: flex; }
+        /* PERUBAHAN DISINI: Tombol x hanya muncul jika input TIDAK kosong (:not(:placeholder-shown)) */
+        #nameWrapper:focus-within input:not(:placeholder-shown) ~ .clear-btn, 
+        .item-row div:first-child:focus-within input:not(:placeholder-shown) ~ .clear-btn { display: flex; }
 
         .row-3col { display: grid; grid-template-columns: 40% 20% 40%; gap: 0; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #1877f2; padding-bottom: 10px; padding-top: 5px; position: relative; }
         .qty-wrapper { position: relative; display: grid; place-items: center; border-left: 1px solid #1877f2; border-right: 1px solid #1877f2; height: 42px; }
@@ -245,7 +246,6 @@
         if (!currentItems.length) return showToast("⚠️ Isi Item!");
         currentMode = mode;
         document.getElementById("confirmTitle").innerText = mode.toUpperCase();
-        // FORMAT: - Item: [Angka Merah]
         document.getElementById("confirmItems").innerHTML = currentItems.map(i => `- ${i.item}: <span style="color:red;">${i.qty}</span>`).join('<br>');
         document.getElementById("confirmPopup").style.display = "flex";
         document.getElementById("finalSubmitBtn").onclick = () => {
@@ -269,7 +269,6 @@
 
     function checkPassword() { if (document.getElementById("adminPass").value === "azza") { document.getElementById("passPopup").style.display = "none"; document.getElementById("adminPass").value = ""; if (passAction === "in") executeFinalSubmit(currentMode, currentName, currentItems); else if (passAction === "ga") updateGAUI(true); } else showToast("❌ Salah!"); }
     function showToast(m) { const t = document.getElementById("popupToast"); t.textContent = m; t.style.display = "block"; setTimeout(() => t.style.display="none", 2500); }
-    // FORMAT: • Item: [Angka Merah]
     function showSuccessPopup(m, its) { document.getElementById("successMode").textContent = m.toUpperCase(); document.getElementById("successItems").innerHTML = its.map(i => `• ${i.item}: <span style="color:red;">${i.qty}</span>`).join('<br>'); document.getElementById("successPopup").style.display = "flex"; }
     function closeSuccessPopup() { document.getElementById("successPopup").style.display = "none"; }
     function closeConfirmPopup() { document.getElementById("confirmPopup").style.display = "none"; }
