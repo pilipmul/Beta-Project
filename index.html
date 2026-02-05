@@ -42,7 +42,6 @@
             display: none; align-items: center; justify-content: center;
             font-size: 14px; cursor: pointer; z-index: 10; font-weight: bold;
         }
-        /* PERUBAHAN DISINI: Tombol x hanya muncul jika input TIDAK kosong (:not(:placeholder-shown)) */
         #nameWrapper:focus-within input:not(:placeholder-shown) ~ .clear-btn, 
         .item-row div:first-child:focus-within input:not(:placeholder-shown) ~ .clear-btn { display: flex; }
 
@@ -262,7 +261,15 @@
         try {
             const resp = await fetch(scriptURL, { method: 'POST', body: body });
             const res = await resp.json();
-            if (res.result === "success") { showSuccessPopup(mode, items); document.getElementById("myForm").reset(); fetchDataAndUpdateUI(); }
+            if (res.result === "success") { 
+                showSuccessPopup(mode, items); 
+                document.getElementById("myForm").reset(); 
+                // Reset baris ke 1 setelah submit sukses
+                const container = document.getElementById("itemContainer");
+                while(container.children.length > 1) container.removeChild(container.lastChild);
+                document.getElementById("addRow").style.display = "flex";
+                fetchDataAndUpdateUI(); 
+            }
             else { showToast(res.error); }
         } catch (e) { showToast("❌ Connection Error"); } finally { document.getElementById("loaderOverlay").style.display = "none"; }
     }
@@ -277,25 +284,37 @@
 
     document.getElementById("addRow").onclick = () => {
         const container = document.getElementById("itemContainer");
-        if (container.children.length >= 5) return showToast("⚠️ Maksimal 5");
-        const clone = container.children[0].cloneNode(true);
-        clone.querySelectorAll("input, textarea").forEach(i => i.value = "");
-        clone.querySelector(".stock-overlay").style.display = "none";
-        clone.querySelector(".autocomplete-list").style.display = "none";
+        const btnAdd = document.getElementById("addRow");
         
-        const tx = clone.querySelector("textarea.desc");
-        tx.onmousedown = (e) => startLongPress(e, tx);
-        tx.onmouseup = cancelLongPress;
-        tx.onmouseleave = cancelLongPress;
-        tx.ontouchstart = (e) => startLongPress(e, tx);
-        tx.ontouchend = cancelLongPress;
+        if (container.children.length < 5) {
+            const clone = container.children[0].cloneNode(true);
+            clone.querySelectorAll("input, textarea").forEach(i => i.value = "");
+            clone.querySelector(".stock-overlay").style.display = "none";
+            clone.querySelector(".autocomplete-list").style.display = "none";
+            
+            const tx = clone.querySelector("textarea.desc");
+            tx.onmousedown = (e) => startLongPress(e, tx);
+            tx.onmouseup = cancelLongPress;
+            tx.onmouseleave = cancelLongPress;
+            tx.ontouchstart = (e) => startLongPress(e, tx);
+            tx.ontouchend = cancelLongPress;
 
-        container.appendChild(clone);
-        initAutocomplete();
+            container.appendChild(clone);
+            initAutocomplete();
+            
+            // Sembunyikan tombol jika sudah mencapai 5
+            if (container.children.length === 5) btnAdd.style.display = "none";
+        }
     };
 
     document.addEventListener("click", e => { 
-        if (e.target.classList.contains("delete-row")) e.target.closest(".item-row").remove();
+        if (e.target.classList.contains("delete-row")) {
+            e.target.closest(".item-row").remove();
+            // Tampilkan kembali tombol tambah jika jumlah baris di bawah 5
+            if (document.getElementById("itemContainer").children.length < 5) {
+                document.getElementById("addRow").style.display = "flex";
+            }
+        }
         if (!e.target.closest(".autocomplete-list") && !e.target.closest("input") && !e.target.closest(".clear-btn")) document.querySelectorAll(".autocomplete-list").forEach(l => l.style.display = "none");
         if (!e.target.closest("#myDropdown") && !e.target.closest("#hamburgerBtn")) document.getElementById("myDropdown").style.display = "none";
         if (!e.target.closest("#historyPopup") && !e.target.closest("#btnHistoryGA")) document.getElementById("historyPopup").style.display = "none";
