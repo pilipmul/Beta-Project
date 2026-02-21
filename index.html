@@ -62,8 +62,12 @@
         button:disabled { background-color: #ccc; cursor: not-allowed; }
         button.in, button.out { background-color: #1877f2; }
 
-        /* Sembunyikan tombol IN tapi tetap simpan ruangnya agar posisi tombol lain tidak berubah */
-        #btnIn { visibility: hidden; }
+        /* Style awal untuk tombol IN: Transparan & Terkunci */
+        #btnIn { 
+            opacity: 0.15; 
+            pointer-events: none; 
+            background-color: #1877f2; 
+        }
         
         .autocomplete-list { position: absolute; background: #fff; border: 1px solid #ccc; border-radius: 6px; z-index: 2000; max-height: 180px; overflow-y: auto; width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: left; display: none; top: 34px; left: 0; }
         .autocomplete-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; }
@@ -193,8 +197,15 @@
         document.getElementById("gaIndicator").style.display = gaMode ? "block" : "none"; 
         document.getElementById("btnHistoryGA").style.display = gaMode ? "block" : "none"; 
         
-        // Menggunakan visibility agar tombol IN tidak terlihat tapi tetap menjaga posisi tombol OUT
-        document.getElementById("btnIn").style.visibility = gaMode ? "visible" : "hidden";
+        // Perubahan Opacity dan Pointer Events
+        const btnIn = document.getElementById("btnIn");
+        if (gaMode) {
+            btnIn.style.opacity = "1";
+            btnIn.style.pointerEvents = "auto";
+        } else {
+            btnIn.style.opacity = "0.15";
+            btnIn.style.pointerEvents = "none";
+        }
         
         initAutocomplete(); 
     }
