@@ -62,7 +62,7 @@
         button:disabled { background-color: #ccc; cursor: not-allowed; }
         button.in, button.out { background-color: #1877f2; }
 
-        /* Sembunyikan tombol IN secara default */
+        /* Sembunyikan tombol IN di awal */
         #btnIn { display: none; }
         
         .autocomplete-list { position: absolute; background: #fff; border: 1px solid #ccc; border-radius: 6px; z-index: 2000; max-height: 180px; overflow-y: auto; width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: left; display: none; top: 34px; left: 0; }
@@ -162,8 +162,8 @@
     const scriptURL = 'https://script.google.com/macros/s/AKfycbzNzaOwIeHkxlp9wdeHDlCLTfqbXlS-A6yzC8c-m4KDIzT-JlBLK_5QqBc6lHXmK41GSQ/exec';
     let nameData = [], itemData = [], itemStock = {}, lastTransactions = [], gaMode = false, activeTextarea = null, longPressTimer, passAction = "", currentMode = "", currentItems = [], currentName = "";
 
-    function clearInput(e, btn) {
-        e.preventDefault();
+    function clearInput(clearEvent, btn) {
+        clearEvent.preventDefault();
         const inp = btn.parentElement.querySelector('input');
         inp.value = '';
         const list = btn.parentElement.querySelector('.autocomplete-list');
@@ -171,7 +171,7 @@
         inp.focus();
     }
 
-    function startLongPress(e, el) {
+    function startLongPress(lpEvent, el) {
         activeTextarea = el;
         longPressTimer = setTimeout(() => {
             document.getElementById("descPopupInput").value = el.value;
@@ -185,14 +185,14 @@
         document.getElementById("descPopup").style.display = "none";
     }
 
-    function toggleDropdown(e) { e.stopPropagation(); const d = document.getElementById("myDropdown"); d.style.display = (d.style.display === "flex") ? "none" : "flex"; }
+    function toggleDropdown(dropEvent) { dropEvent.stopPropagation(); const d = document.getElementById("myDropdown"); d.style.display = (d.style.display === "flex") ? "none" : "flex"; }
     function toggleGAMode() { document.getElementById("myDropdown").style.display = "none"; if (!gaMode) { passAction = "ga"; document.getElementById("passPopup").style.display = "flex"; document.getElementById("adminPass").focus(); } else { updateGAUI(false); } }
     
     function updateGAUI(status) { 
         gaMode = status; 
         document.getElementById("gaIndicator").style.display = gaMode ? "block" : "none"; 
         document.getElementById("btnHistoryGA").style.display = gaMode ? "block" : "none"; 
-        // Logika tampil/sembunyi tombol IN
+        // Hanya memunculkan tombol IN saat mode GA aktif
         document.getElementById("btnIn").style.display = gaMode ? "block" : "none";
         initAutocomplete(); 
     }
@@ -290,7 +290,7 @@
     function closeSuccessPopup() { document.getElementById("successPopup").style.display = "none"; }
     function closeConfirmPopup() { document.getElementById("confirmPopup").style.display = "none"; }
     function closePassPopup() { document.getElementById("passPopup").style.display = "none"; }
-    function toggleHistoryPopup(e) { e.stopPropagation(); const p = document.getElementById("historyPopup"); p.style.display = p.style.display === "block" ? "none" : "block"; document.getElementById("historyList").innerHTML = lastTransactions.map(t => `<div style="padding:8px; border-bottom:1px solid #eee; font-size:0.85rem;"><b>${t[0]}</b> <span style="color:${t[1]==='in'?'green':'red'}">${t[1].toUpperCase()}</span> <b>${t[2]}</b></div>`).join(''); }
+    function toggleHistoryPopup(hEvent) { hEvent.stopPropagation(); const p = document.getElementById("historyPopup"); p.style.display = p.style.display === "block" ? "none" : "block"; document.getElementById("historyList").innerHTML = lastTransactions.map(t => `<div style="padding:8px; border-bottom:1px solid #eee; font-size:0.85rem;"><b>${t[0]}</b> <span style="color:${t[1]==='in'?'green':'red'}">${t[1].toUpperCase()}</span> <b>${t[2]}</b></div>`).join(''); }
 
     document.getElementById("addRow").onclick = () => {
         const container = document.getElementById("itemContainer");
