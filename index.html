@@ -102,10 +102,11 @@
         }
         .history-header {
             position: sticky; top: 0; background: #fff; padding: 12px 12px 8px 12px;
-            /* Border-bottom dihapus untuk menghilangkan garis bawah */
             z-index: 10;
         }
         #historyList { padding: 4px 12px 12px 12px; }
+        .history-item { padding: 8px; border-bottom: 1px solid #eee; font-size: 0.85rem; cursor: pointer; }
+        .history-item:hover { background-color: #f0f7ff; }
 
         #loaderOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.4); display: none; justify-content: center; align-items: center; z-index: 9999; }
         .loader { border: 6px solid #f3f3f3; border-top: 6px solid #1877f2; border-radius: 50%; width: 50px; height: 50px; animation: spin 0.8s linear infinite; }
@@ -178,6 +179,8 @@
 <div id="successPopup" class="popup-overlay"><div class="popup-box"><div id="successMode"></div><div id="successItems" style="text-align:left; margin-bottom:20px;"></div><button class="modal-btn" onclick="closeSuccessPopup()">Close</button></div></div>
 <div id="descPopup" class="popup-overlay"><div class="popup-box"><textarea id="descPopupInput" style="width:100%; height:120px; border:1px solid #1877f2; border-radius:8px; margin-bottom:10px; text-align: left;"></textarea><button class="modal-btn" onclick="saveDescPopup()">Save</button></div></div>
 <div id="passPopup" class="popup-overlay"><div class="popup-box"><input type="password" id="adminPass" placeholder="Password" style="border:1px solid #1877f2; border-radius:8px; margin-bottom:15px; height:45px;"><div class="btn-group"><button class="modal-btn" onclick="checkPassword()">OK</button><button class="modal-btn" onclick="closePassPopup()" style="background:#595959;">Batal</button></div></div></div>
+
+<div id="detailPopup" class="popup-overlay"><div class="popup-box"><h3 style="color:#1877f2; margin-top:0;">Detail Transaksi</h3><div id="detailContent" style="text-align:left; margin-bottom:20px; font-size: 0.95rem; line-height: 1.6;"></div><button class="modal-btn" onclick="document.getElementById('detailPopup').style.display='none'">Tutup</button></div></div>
 
 <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbzNzaOwIeHkxlp9wdeHDlCLTfqbXlS-A6yzC8c-m4KDIzT-JlBLK_5QqBc6lHXmK41GSQ/exec';
@@ -318,7 +321,31 @@
     function closeSuccessPopup() { document.getElementById("successPopup").style.display = "none"; }
     function closeConfirmPopup() { document.getElementById("confirmPopup").style.display = "none"; }
     function closePassPopup() { document.getElementById("passPopup").style.display = "none"; }
-    function toggleHistoryPopup(e) { e.stopPropagation(); const p = document.getElementById("historyPopup"); p.style.display = p.style.display === "block" ? "none" : "block"; document.getElementById("historyList").innerHTML = lastTransactions.map(t => `<div style="padding:8px; border-bottom:1px solid #eee; font-size:0.85rem;"><b>${t[0]}</b> <span style="color:${t[1]==='in'?'green':'red'}">${t[1].toUpperCase()}</span> <b>${t[2]}</b></div>`).join(''); }
+    
+    function toggleHistoryPopup(e) { 
+        e.stopPropagation(); 
+        const p = document.getElementById("historyPopup"); 
+        p.style.display = p.style.display === "block" ? "none" : "block"; 
+        document.getElementById("historyList").innerHTML = lastTransactions.map((t, index) => 
+            `<div class="history-item" onclick="showHistoryDetail(${index})">
+                <b>${t[0]}</b> <span style="color:${t[1]==='in'?'green':'red'}">${t[1].toUpperCase()}</span> <b>${t[2]}</b>
+            </div>`
+        ).join(''); 
+    }
+
+    function showHistoryDetail(index) {
+        const t = lastTransactions[index];
+        const content = `
+            <b>Nama:</b> ${t[0]}<br>
+            <b>Mode:</b> <span style="color:${t[1]==='in'?'green':'red'}; font-weight:bold;">${t[1].toUpperCase()}</span><br>
+            <b>Item:</b> ${t[2]}<br>
+            <b>Qty:</b> <span style="color:red; font-weight:bold;">${t[3] || '-'}</span><br>
+            <b>Notes:</b> ${t[4] || '-'}<br>
+            <b>Tanggal:</b> ${t[5] || '-'}
+        `;
+        document.getElementById("detailContent").innerHTML = content;
+        document.getElementById("detailPopup").style.display = "flex";
+    }
 
     document.getElementById("addRow").onclick = () => {
         const container = document.getElementById("itemContainer");
