@@ -273,8 +273,7 @@
         document.getElementById("confirmPopup").style.display = "flex";
         document.getElementById("finalSubmitBtn").onclick = () => {
             document.getElementById("confirmPopup").style.display = "none";
-            if (mode === "in") { passAction = "in"; document.getElementById("passPopup").style.display = "flex"; }
-            else { executeFinalSubmit(mode, currentName, currentItems); }
+            executeFinalSubmit(mode, currentName, currentItems);
         };
     }
 
@@ -347,3 +346,4 @@
 </script>
 </body>
 </html>
+
