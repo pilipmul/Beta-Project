@@ -62,6 +62,7 @@
         button:disabled { background-color: #ccc; cursor: not-allowed; }
         button.in, button.out { background-color: #1877f2; }
 
+        /* Style awal untuk tombol IN: Transparan & Terkunci */
         #btnIn { 
             opacity: 0.15; 
             pointer-events: none; 
@@ -114,7 +115,6 @@
         <div id="myDropdown" class="dropdown-menu">
             <div class="dropdown-item" onclick="toggleGAMode()">GA Mode</div>
             <div id="btnHistoryGA" class="dropdown-item" style="display:none;" onclick="toggleHistoryPopup(event)">~5 Trx</div>
-            <div class="dropdown-item" onclick="showAbout()">About</div>
         </div>
     </div>
     
@@ -162,37 +162,6 @@
 <div id="descPopup" class="popup-overlay"><div class="popup-box"><textarea id="descPopupInput" style="width:100%; height:120px; border:1px solid #1877f2; border-radius:8px; margin-bottom:10px; text-align: left;"></textarea><button class="modal-btn" onclick="saveDescPopup()">Save</button></div></div>
 <div id="passPopup" class="popup-overlay"><div class="popup-box"><input type="password" id="adminPass" placeholder="Password" style="border:1px solid #1877f2; border-radius:8px; margin-bottom:15px; height:45px;"><div class="btn-group"><button class="modal-btn" onclick="checkPassword()">OK</button><button class="modal-btn" onclick="closePassPopup()" style="background:#595959;">Batal</button></div></div></div>
 
-<div id="aboutPopup" class="popup-overlay">
-    <div class="popup-box" style="max-width: 400px; text-align: left; max-height: 85vh; overflow-y: auto; padding: 25px;">
-        <h2 style="color:#1877f2; text-align: center; margin-top: 0;">🚀 Tentang PBC SyncFlow</h2>
-        <p style="font-size: 0.9rem; line-height: 1.6; color: #333;">
-            <b>PBC SyncFlow</b> adalah solusi manajemen inventaris berbasis web yang dirancang khusus untuk mempermudah pencatatan alur masuk dan keluar barang secara <i>real-time</i>. Dengan antarmuka yang bersih dan responsif, aplikasi ini menjadi jembatan efisiensi antara operasional lapangan dan pengawasan stok barang.
-        </p>
-        
-        <h4 style="color:#1877f2; margin-bottom: 8px;">🛠️ Fitur Utama</h4>
-        <ul style="font-size: 0.85rem; padding-left: 20px; margin-top: 0; line-height: 1.5;">
-            <li><b>Smart Entry System:</b> Pencatatan transaksi IN (Masuk) dan OUT (Keluar) yang cepat dengan fitur autocomplete untuk nama pengguna dan jenis item.</li>
-            <li><b>Dual-Mode Operation:</b> Mendukung mode standar dan GA Mode yang dilengkapi dengan indikator sisa stok untuk pemantauan yang lebih akurat.</li>
-            <li><b>Multi-Item Transaction:</b> Mampu menangani hingga 5 item berbeda dalam satu kali pengiriman (post) untuk menghemat waktu input.</li>
-            <li><b>Instant History:</b> Akses cepat ke 5 transaksi terakhir untuk memastikan data yang baru dimasukkan telah tersinkronisasi dengan benar.</li>
-            <li><b>Cloud Integration:</b> Terintegrasi langsung dengan ekosistem Google Sheets melalui Google Apps Script, memastikan data tersimpan dengan aman dan dapat diakses dari mana saja tanpa perlu database yang rumit.</li>
-        </ul>
-
-        <h4 style="color:#1877f2; margin-bottom: 8px;">🎯 Tujuan</h4>
-        <p style="font-size: 0.85rem; margin-top: 0; line-height: 1.5;">
-            Aplikasi ini diciptakan untuk meminimalkan kesalahan manual, mempercepat proses administrasi gudang, dan memberikan transparansi data bagi tim PBC. Dengan PBC SyncFlow, setiap aliran barang tercatat dengan satu klik, tepat sasaran, dan tanpa hambatan.
-        </p>
-
-        <div style="font-size: 0.8rem; color: #666; border-top: 1px solid #eee; padding-top: 15px; margin-top: 15px;">
-            <p style="margin: 2px 0;"><b>Versi:</b> 1.0</p>
-            <p style="margin: 2px 0;"><b>Power by:</b> Google Apps Script & PBC Internal Dev Team</p>
-            <p style="margin: 2px 0;"><b>Karakteristik:</b> Ringan, Cepat, dan Handal.</p>
-        </div>
-        
-        <button class="modal-btn" onclick="closeAbout()" style="width: 100%; margin-top: 20px;">Tutup</button>
-    </div>
-</div>
-
 <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbzNzaOwIeHkxlp9wdeHDlCLTfqbXlS-A6yzC8c-m4KDIzT-JlBLK_5QqBc6lHXmK41GSQ/exec';
     let nameData = [], itemData = [], itemStock = {}, lastTransactions = [], gaMode = false, activeTextarea = null, longPressTimer, passAction = "", currentMode = "", currentItems = [], currentName = "";
@@ -221,16 +190,14 @@
     }
 
     function toggleDropdown(e) { e.stopPropagation(); const d = document.getElementById("myDropdown"); d.style.display = (d.style.display === "flex") ? "none" : "flex"; }
-    
-    function showAbout() { document.getElementById("myDropdown").style.display = "none"; document.getElementById("aboutPopup").style.display = "flex"; }
-    function closeAbout() { document.getElementById("aboutPopup").style.display = "none"; }
-
     function toggleGAMode() { document.getElementById("myDropdown").style.display = "none"; if (!gaMode) { passAction = "ga"; document.getElementById("passPopup").style.display = "flex"; document.getElementById("adminPass").focus(); } else { updateGAUI(false); } }
     
     function updateGAUI(status) { 
         gaMode = status; 
         document.getElementById("gaIndicator").style.display = gaMode ? "block" : "none"; 
         document.getElementById("btnHistoryGA").style.display = gaMode ? "block" : "none"; 
+        
+        // Perubahan Opacity dan Pointer Events
         const btnIn = document.getElementById("btnIn");
         if (gaMode) {
             btnIn.style.opacity = "1";
@@ -239,6 +206,7 @@
             btnIn.style.opacity = "0.15";
             btnIn.style.pointerEvents = "none";
         }
+        
         initAutocomplete(); 
     }
 
@@ -305,7 +273,6 @@
         document.getElementById("confirmPopup").style.display = "flex";
         document.getElementById("finalSubmitBtn").onclick = () => {
             document.getElementById("confirmPopup").style.display = "none";
-            // Perubahan: Langsung eksekusi tanpa minta password untuk mode IN
             executeFinalSubmit(mode, currentName, currentItems);
         };
     }
@@ -340,19 +307,23 @@
     document.getElementById("addRow").onclick = () => {
         const container = document.getElementById("itemContainer");
         const btnAdd = document.getElementById("addRow");
+        
         if (container.children.length < 5) {
             const clone = container.children[0].cloneNode(true);
             clone.querySelectorAll("input, textarea").forEach(i => i.value = "");
             clone.querySelector(".stock-overlay").style.display = "none";
             clone.querySelector(".autocomplete-list").style.display = "none";
+            
             const tx = clone.querySelector("textarea.desc");
             tx.onmousedown = (e) => startLongPress(e, tx);
             tx.onmouseup = cancelLongPress;
             tx.onmouseleave = cancelLongPress;
             tx.ontouchstart = (e) => startLongPress(e, tx);
             tx.ontouchend = cancelLongPress;
+
             container.appendChild(clone);
             initAutocomplete();
+            
             if (container.children.length === 5) btnAdd.style.visibility = "hidden";
         }
     };
@@ -367,7 +338,6 @@
         if (!e.target.closest(".autocomplete-list") && !e.target.closest("input") && !e.target.closest(".clear-btn")) document.querySelectorAll(".autocomplete-list").forEach(l => l.style.display = "none");
         if (!e.target.closest("#myDropdown") && !e.target.closest("#hamburgerBtn")) document.getElementById("myDropdown").style.display = "none";
         if (!e.target.closest("#historyPopup") && !e.target.closest("#btnHistoryGA")) document.getElementById("historyPopup").style.display = "none";
-        if (e.target.id === "aboutPopup") closeAbout();
     });
 
     document.getElementById("btnIn").onclick = () => handleSubmit("in");
