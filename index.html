@@ -115,6 +115,7 @@
         <div id="myDropdown" class="dropdown-menu">
             <div class="dropdown-item" onclick="toggleGAMode()">GA Mode</div>
             <div id="btnHistoryGA" class="dropdown-item" style="display:none;" onclick="toggleHistoryPopup(event)">~5 Trx</div>
+            <div class="dropdown-item" onclick="showAbout()">About</div>
         </div>
     </div>
     
@@ -162,6 +163,35 @@
 <div id="descPopup" class="popup-overlay"><div class="popup-box"><textarea id="descPopupInput" style="width:100%; height:120px; border:1px solid #1877f2; border-radius:8px; margin-bottom:10px; text-align: left;"></textarea><button class="modal-btn" onclick="saveDescPopup()">Save</button></div></div>
 <div id="passPopup" class="popup-overlay"><div class="popup-box"><input type="password" id="adminPass" placeholder="Password" style="border:1px solid #1877f2; border-radius:8px; margin-bottom:15px; height:45px;"><div class="btn-group"><button class="modal-btn" onclick="checkPassword()">OK</button><button class="modal-btn" onclick="closePassPopup()" style="background:#595959;">Batal</button></div></div></div>
 
+<div id="aboutPopup" class="popup-overlay">
+    <div class="popup-box" style="max-width: 380px; text-align: left; max-height: 80vh; overflow-y: auto;">
+        <h2 style="color:#1877f2; text-align: center; margin-top: 0;">🚀 PBC SyncFlow</h2>
+        <p style="font-size: 0.9rem; line-height: 1.5; color: #444;">
+            Solusi manajemen inventaris berbasis web yang dirancang untuk mempermudah pencatatan alur barang secara <i>real-time</i> di ekosistem PBC.
+        </p>
+        
+        <h4 style="color:#1877f2; margin-bottom: 5px;">🛠️ Fitur Utama</h4>
+        <ul style="font-size: 0.85rem; padding-left: 20px; margin-top: 0;">
+            <li>Smart Entry & Autocomplete</li>
+            <li>Dual-Mode (Standard & GA Mode)</li>
+            <li>Multi-Item Transaction (Maks 5)</li>
+            <li>Instant Cloud Sync (Google Sheets)</li>
+        </ul>
+
+        <h4 style="color:#1877f2; margin-bottom: 5px;">👨‍💻 Pengembang</h4>
+        <p style="font-size: 0.85rem; margin-top: 0;">
+            <b>PBC Internal Dev Team</b><br>
+            Lead Developer, UI/UX Designer, & QA.
+        </p>
+
+        <p style="font-size: 0.75rem; color: #888; text-align: center; margin-top: 20px;">
+            Versi 1.0 | Status: Active & Maintained
+        </p>
+        
+        <button class="modal-btn" onclick="closeAbout()" style="width: 100%; margin-top: 10px;">Tutup</button>
+    </div>
+</div>
+
 <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbzNzaOwIeHkxlp9wdeHDlCLTfqbXlS-A6yzC8c-m4KDIzT-JlBLK_5QqBc6lHXmK41GSQ/exec';
     let nameData = [], itemData = [], itemStock = {}, lastTransactions = [], gaMode = false, activeTextarea = null, longPressTimer, passAction = "", currentMode = "", currentItems = [], currentName = "";
@@ -192,12 +222,15 @@
     function toggleDropdown(e) { e.stopPropagation(); const d = document.getElementById("myDropdown"); d.style.display = (d.style.display === "flex") ? "none" : "flex"; }
     function toggleGAMode() { document.getElementById("myDropdown").style.display = "none"; if (!gaMode) { passAction = "ga"; document.getElementById("passPopup").style.display = "flex"; document.getElementById("adminPass").focus(); } else { updateGAUI(false); } }
     
+    // Fungsi About
+    function showAbout() { document.getElementById("myDropdown").style.display = "none"; document.getElementById("aboutPopup").style.display = "flex"; }
+    function closeAbout() { document.getElementById("aboutPopup").style.display = "none"; }
+
     function updateGAUI(status) { 
         gaMode = status; 
         document.getElementById("gaIndicator").style.display = gaMode ? "block" : "none"; 
         document.getElementById("btnHistoryGA").style.display = gaMode ? "block" : "none"; 
         
-        // Perubahan Opacity dan Pointer Events
         const btnIn = document.getElementById("btnIn");
         if (gaMode) {
             btnIn.style.opacity = "1";
@@ -271,6 +304,8 @@
         document.getElementById("confirmTitle").innerText = mode.toUpperCase();
         document.getElementById("confirmItems").innerHTML = currentItems.map(i => `- ${i.item}: <span style="color:red;">${i.qty}</span>`).join('<br>');
         document.getElementById("confirmPopup").style.display = "flex";
+        
+        // MODIFIKASI: Tombol final langsung eksekusi tanpa cek password mode IN
         document.getElementById("finalSubmitBtn").onclick = () => {
             document.getElementById("confirmPopup").style.display = "none";
             executeFinalSubmit(mode, currentName, currentItems);
@@ -338,6 +373,7 @@
         if (!e.target.closest(".autocomplete-list") && !e.target.closest("input") && !e.target.closest(".clear-btn")) document.querySelectorAll(".autocomplete-list").forEach(l => l.style.display = "none");
         if (!e.target.closest("#myDropdown") && !e.target.closest("#hamburgerBtn")) document.getElementById("myDropdown").style.display = "none";
         if (!e.target.closest("#historyPopup") && !e.target.closest("#btnHistoryGA")) document.getElementById("historyPopup").style.display = "none";
+        if (e.target.id === "aboutPopup") closeAbout(); // Tutup about jika klik di luar box
     });
 
     document.getElementById("btnIn").onclick = () => handleSubmit("in");
@@ -346,4 +382,3 @@
 </script>
 </body>
 </html>
-
