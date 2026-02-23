@@ -312,8 +312,9 @@
         const p = document.getElementById("historyPopup"); 
         p.style.display = p.style.display === "block" ? "none" : "block"; 
         document.getElementById("historyList").innerHTML = lastTransactions.map((t, index) => {
-            let modeTxt = t[2] > 0 ? "IN" : "OUT";
-            let colorTxt = t[2] > 0 ? "green" : "red";
+            let isIn = t[2] !== "" && t[2] > 0;
+            let modeTxt = isIn ? "IN" : "OUT";
+            let colorTxt = isIn ? "green" : "red";
             return `<div class="history-item" onclick="showHistoryDetail(${index})">
                 <b>${t[0]}</b> <span style="color:${colorTxt}">${modeTxt}</span> <b>${t[1]}</b>
             </div>`;
@@ -324,8 +325,16 @@
         const t = lastTransactions[index];
         let modeDisplay = "";
         let qtyDisplay = 0;
-        if (t[2] && t[2] > 0) { modeDisplay = '<span style="color:green; font-weight:bold;">IN</span>'; qtyDisplay = t[2]; } 
-        else if (t[3] && t[3] > 0) { modeDisplay = '<span style="color:red; font-weight:bold;">OUT</span>'; qtyDisplay = t[3]; }
+
+        // Logika sesuai urutan kolom A=0, B=1, C=2, D=3, E=4, F=5
+        if (t[2] !== "" && t[2] > 0) { 
+            modeDisplay = '<span style="color:green; font-weight:bold;">IN</span>';
+            qtyDisplay = t[2];
+        } else if (t[3] !== "" && t[3] > 0) { 
+            modeDisplay = '<span style="color:red; font-weight:bold;">OUT</span>';
+            qtyDisplay = t[3];
+        }
+
         const content = `
             <b>Nama:</b> ${t[0] || '-'}<br>
             <b>Item:</b> ${t[1] || '-'}<br>
