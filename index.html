@@ -94,12 +94,12 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .spinning { animation: spin 1s linear infinite; }
 
-        /* MODIFIKASI HISTORY: Mendukung scroll dan tinggi maks */
+        /* MODIFIKASI: Mendukung scroll 50 data tanpa mengubah lebar */
         #historyPopup { 
             position: absolute; top: 35px; right: 10px; 
             background-color: #fff; border: 2px solid #1877f2; 
             border-radius: 8px; width: 280px; 
-            max-height: 380px; overflow-y: auto; 
+            max-height: 400px; overflow-y: auto; 
             padding: 12px; display: none; text-align: left; 
             box-shadow: 0 8px 24px rgba(0,0,0,0.4); z-index: 5000; 
         }
@@ -314,16 +314,13 @@
     function closeConfirmPopup() { document.getElementById("confirmPopup").style.display = "none"; }
     function closePassPopup() { document.getElementById("passPopup").style.display = "none"; }
 
-    // MODIFIKASI: Menampilkan 50 transaksi dan merender list
+    // MODIFIKASI: Menampilkan 50 transaksi terakhir
     function toggleHistoryPopup(e) { 
         e.stopPropagation(); 
         const p = document.getElementById("historyPopup"); 
         p.style.display = p.style.display === "block" ? "none" : "block"; 
-        document.getElementById("historyList").innerHTML = lastTransactions.slice(0, 50).map(t => 
-            `<div style="padding:8px; border-bottom:1px solid #eee; font-size:0.85rem;">
-                <b>${t[0]}</b> <span style="color:${t[1]==='in'?'green':'red'}">${t[1].toUpperCase()}</span> <b>${t[2]}</b>
-            </div>`
-        ).join(''); 
+        // Menggunakan slice(0, 50) untuk mengambil 50 item terbaru
+        document.getElementById("historyList").innerHTML = lastTransactions.slice(0, 50).map(t => `<div style="padding:8px; border-bottom:1px solid #eee; font-size:0.85rem;"><b>${t[0]}</b> <span style="color:${t[1]==='in'?'green':'red'}">${t[1].toUpperCase()}</span> <b>${t[2]}</b></div>`).join(''); 
     }
 
     document.getElementById("addRow").onclick = () => {
