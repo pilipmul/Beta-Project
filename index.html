@@ -102,7 +102,6 @@
         }
         .history-header {
             position: sticky; top: 0; background: #fff; padding: 12px 12px 8px 12px;
-            /* Border-bottom dihapus untuk menghilangkan garis bawah */
             z-index: 10;
         }
         #historyList { padding: 4px 12px 12px 12px; }
@@ -318,7 +317,47 @@
     function closeSuccessPopup() { document.getElementById("successPopup").style.display = "none"; }
     function closeConfirmPopup() { document.getElementById("confirmPopup").style.display = "none"; }
     function closePassPopup() { document.getElementById("passPopup").style.display = "none"; }
-    function toggleHistoryPopup(e) { e.stopPropagation(); const p = document.getElementById("historyPopup"); p.style.display = p.style.display === "block" ? "none" : "block"; document.getElementById("historyList").innerHTML = lastTransactions.map(t => `<div style="padding:8px; border-bottom:1px solid #eee; font-size:0.85rem;"><b>${t[0]}</b> <span style="color:${t[1]==='in'?'green':'red'}">${t[1].toUpperCase()}</span> <b>${t[2]}</b></div>`).join(''); }
+
+    // --- FUNGSI HISTORY TERUPDATE ---
+    function toggleHistoryPopup(e) { 
+        e.stopPropagation(); 
+        const p = document.getElementById("historyPopup"); 
+        p.style.display = p.style.display === "block" ? "none" : "block"; 
+        
+        // Data mapping asumsi: 0=Nama, 1=Mode, 2=Item, 3=Qty, 4=Tanggal, 5=Notes
+        document.getElementById("historyList").innerHTML = lastTransactions.map((t, index) => `
+            <div onclick="showDetailTransaction(${index})" style="padding:10px; border-bottom:1px solid #eee; font-size:0.82rem; cursor:pointer; transition:background 0.2s;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-weight:700; color:#1877f2;">${t[2]}</span>
+                    <span style="color:${t[1].toLowerCase()==='in'?'green':'red'}; font-weight:bold; font-size:0.7rem;">${t[1].toUpperCase()}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; color:#666; margin-top:3px;">
+                    <span>Qty: ${t[3]}</span>
+                    <span style="font-size:0.75rem;">${t[4]}</span>
+                </div>
+            </div>
+        `).join(''); 
+    }
+
+    function showDetailTransaction(index) {
+        const t = lastTransactions[index];
+        const detailHtml = `
+            <div style="text-align:left; font-size:0.9rem; line-height:1.6; color: #333;">
+                <div style="margin-bottom:8px;"><strong>Nama:</strong><br>${t[0]}</div>
+                <div style="margin-bottom:8px;"><strong>Item:</strong><br>${t[2]}</div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                    <div><strong>Mode:</strong> <span style="color:${t[1].toLowerCase()==='in'?'green':'red'}; font-weight:bold;">${t[1].toUpperCase()}</span></div>
+                    <div><strong>Qty:</strong> ${t[3]}</div>
+                </div>
+                <div style="margin-bottom:8px;"><strong>Tanggal:</strong><br>${t[4]}</div>
+                <div><strong>Notes:</strong><br><span style="color:#666; font-style:italic;">${t[5] || '-'}</span></div>
+            </div>
+        `;
+        document.getElementById("successMode").textContent = "DETAIL TRX";
+        document.getElementById("successItems").innerHTML = detailHtml;
+        document.getElementById("successPopup").style.display = "flex";
+        document.getElementById("historyPopup").style.display = "none";
+    }
 
     document.getElementById("addRow").onclick = () => {
         const container = document.getElementById("itemContainer");
