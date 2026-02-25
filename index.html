@@ -181,30 +181,28 @@
     function closeConfirmPopup() { document.getElementById("confirmPopup").style.display = "none"; }
     function closePassPopup() { document.getElementById("passPopup").style.display = "none"; }
 
-    // --- FUNGSI HISTORI YANG DIPERBARUI (DENGAN NAMA, TGL, NOTES & EKSPANSI) ---
-    function toggleHistoryPopup(e) { 
-        e.stopPropagation();
-        const p = document.getElementById("historyPopup"); 
-        p.style.display = p.style.display === "block" ? "none" : "block";
+    function toggleHistoryPopup(e) { 
+        e.stopPropagation();
+        const p = document.getElementById("historyPopup"); 
+        p.style.display = p.style.display === "block" ? "none" : "block";
 
-        document.getElementById("historyList").innerHTML = lastTransactions.map((t, index) => `
-            <div class="history-item" onclick="const det = document.getElementById('det-${index}'); det.style.display = det.style.display === 'block' ? 'none' : 'block';">
-                <div style="font-size:0.85rem; display: flex; justify-content: space-between; align-items: center;">
-                    <span><b>${t[0]}</b> <span style="color:${t[1]==='in'?'green':'red'}">${t[1].toUpperCase()}</span></span>
-                    <b>${t[2]}</b>
-                </div>
-                <div id="det-${index}" class="history-detail">
-                    <div style="border-top: 1px dashed #1877f2; margin-top: 4px; padding-top: 4px;">
-                        <b>👤 Nama:</b> ${t[3]}<br>
-                        <b>📅 Tgl:</b> ${t[4]}<br>
-                        <b>📝 Notes:</b> ${t[5] || '-'}
-                    </div>
-                </div>
-            </div>
-        `).join('');
-    }
+        document.getElementById("historyList").innerHTML = lastTransactions.map((t, index) => `
+            <div class="history-item" onclick="const det = document.getElementById('det-${index}'); det.style.display = det.style.display === 'block' ? 'none' : 'block';">
+                <div style="font-size:0.85rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span><b>${t[0]}</b> <span style="color:${t[1]==='in'?'green':'red'}">${t[1].toUpperCase()}</span></span>
+                    <b>${t[2]}</b>
+                </div>
+                <div id="det-${index}" class="history-detail">
+                    <div style="border-top: 1px dashed #1877f2; margin-top: 4px; padding-top: 4px;">
+                        ${t[3]}<br>
+                        ${t[4]}<br>
+                        ${t[5] || '-'}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
 
-    // Event Listeners (Tetap Sama)
     document.getElementById("addRow").onclick = () => { const container = document.getElementById("itemContainer"); const btnAdd = document.getElementById("addRow"); if (container.children.length < 5) { const clone = container.children[0].cloneNode(true); clone.querySelectorAll("input, textarea").forEach(i => i.value = ""); clone.querySelector(".stock-overlay").style.display = "none"; clone.querySelector(".autocomplete-list").style.display = "none"; const tx = clone.querySelector("textarea.desc"); tx.onmousedown = (e) => startLongPress(e, tx); tx.onmouseup = cancelLongPress; tx.onmouseleave = cancelLongPress; tx.ontouchstart = (e) => startLongPress(e, tx); tx.ontouchend = cancelLongPress; container.appendChild(clone); initAutocomplete(); if (container.children.length === 5) btnAdd.style.visibility = "hidden"; } };
     document.addEventListener("click", e => { if (e.target.classList.contains("delete-row")) { e.target.closest(".item-row").remove(); if (document.getElementById("itemContainer").children.length < 5) { document.getElementById("addRow").style.visibility = "visible"; } } if (!e.target.closest(".autocomplete-list") && !e.target.closest("input") && !e.target.closest(".clear-btn")) document.querySelectorAll(".autocomplete-list").forEach(l => l.style.display = "none"); if (!e.target.closest("#myDropdown") && !e.target.closest("#hamburgerBtn")) document.getElementById("myDropdown").style.display = "none"; if (!e.target.closest("#historyPopup") && !e.target.closest("#btnHistoryGA")) document.getElementById("historyPopup").style.display = "none"; });
     document.getElementById("btnIn").onclick = () => handleSubmit("in");
@@ -213,3 +211,4 @@
 </script>
 </body>
 </html>
+
