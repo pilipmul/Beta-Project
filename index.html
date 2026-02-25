@@ -181,17 +181,17 @@
     function closeConfirmPopup() { document.getElementById("confirmPopup").style.display = "none"; }
     function closePassPopup() { document.getElementById("passPopup").style.display = "none"; }
 
-    // --- FUNGSI HISTORI DENGAN PEMOTONGAN STRING (10 KARAKTER) ---
+    // --- FUNGSI HISTORI DENGAN PEMOTONGAN 10 KARAKTER ---
     function toggleHistoryPopup(e) { 
         e.stopPropagation();
         const p = document.getElementById("historyPopup"); 
         p.style.display = p.style.display === "block" ? "none" : "block";
 
         document.getElementById("historyList").innerHTML = lastTransactions.map((t, index) => {
-            // Mengambil 10 karakter pertama: YYYY-MM-DD
+            // 1. Ambil 10 karakter pertama (Hasil: 2026-02-22)
             const rawDate = String(t[3]).substring(0, 10); 
             
-            // Mengubah urutan dari YYYY-MM-DD menjadi DD-MM-YYYY
+            // 2. Pecah berdasarkan "-" dan balik urutannya (Hasil: 22-02-2026)
             const parts = rawDate.split('-');
             const formattedDate = parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : rawDate;
 
@@ -203,9 +203,9 @@
                 </div>
                 <div id="det-${index}" class="history-detail">
                     <div style="border-top: 1px dashed #1877f2; margin-top: 4px; padding-top: 4px;">
-                        <b> ${formattedDate}<br>
-                        <b> ${t[4]}<br>
-                        <b> ${t[5] || '-'}
+                        <b> Tanggal: ${formattedDate}<br>
+                        <b> Item: ${t[4]}<br>
+                        <b> Notes: ${t[5] || '-'}
                     </div>
                 </div>
             </div>
@@ -222,6 +222,7 @@
 </script>
 </body>
 </html>
+
 
 
 
