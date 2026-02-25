@@ -181,21 +181,13 @@
     function closeConfirmPopup() { document.getElementById("confirmPopup").style.display = "none"; }
     function closePassPopup() { document.getElementById("passPopup").style.display = "none"; }
 
-    // --- FUNGSI HISTORI DENGAN PEMOTONGAN 10 KARAKTER ---
+    // --- FUNGSI HISTORI YANG DIPERBARUI (DENGAN NAMA, TGL, NOTES & EKSPANSI) ---
     function toggleHistoryPopup(e) { 
         e.stopPropagation();
         const p = document.getElementById("historyPopup"); 
         p.style.display = p.style.display === "block" ? "none" : "block";
 
-        document.getElementById("historyList").innerHTML = lastTransactions.map((t, index) => {
-            // 1. Ambil 10 karakter pertama (Hasil: 2026-02-22)
-            const rawDate = String(t[3]).substring(0, 10); 
-            
-            // 2. Pecah berdasarkan "-" dan balik urutannya (Hasil: 22-02-2026)
-            const parts = rawDate.split('-');
-            const formattedDate = parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : rawDate;
-
-            return `
+        document.getElementById("historyList").innerHTML = lastTransactions.map((t, index) => `
             <div class="history-item" onclick="const det = document.getElementById('det-${index}'); det.style.display = det.style.display === 'block' ? 'none' : 'block';">
                 <div style="font-size:0.85rem; display: flex; justify-content: space-between; align-items: center;">
                     <span><b>${t[0]}</b> <span style="color:${t[1]==='in'?'green':'red'}">${t[1].toUpperCase()}</span></span>
@@ -203,14 +195,13 @@
                 </div>
                 <div id="det-${index}" class="history-detail">
                     <div style="border-top: 1px dashed #1877f2; margin-top: 4px; padding-top: 4px;">
-                        <b> Tanggal: ${formattedDate}<br>
-                        <b> Item: ${t[4]}<br>
-                        <b> Notes: ${t[5] || '-'}
+                        <b> ${t[3]}<br>
+                        <b> ${t[4]}<br>
+                        <b> ${t[5] || '-'}
                     </div>
                 </div>
             </div>
-            `;
-        }).join('');
+        `).join('');
     }
 
     // Event Listeners (Tetap Sama)
@@ -222,7 +213,3 @@
 </script>
 </body>
 </html>
-
-
-
-
